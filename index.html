@@ -400,12 +400,31 @@ img { -webkit-user-drag: none; user-drag: none; }
   .nebula, .gem-sparkle { animation: none !important; }
   .modal-overlay.active .panel { animation: none !important; }
 }
-/* Low-memory devices: disable heavy blur effects */
+/* Low-memory / low-power devices: disable heavy effects */
 .low-perf .cosmic-aurora-band,
-.low-perf .cosmic-plume { display: none; }
+.low-perf .cosmic-plume,
+.low-perf .cosmic-pulsar,
+.low-perf .cosmic-comet,
+.low-perf .cosmic-shooter,
+.low-perf .map-cloud,
+.low-perf .map-ship { display: none; }
 .low-perf .panel,
 .low-perf .home-dock,
 .low-perf .home-hud-top { backdrop-filter: none; -webkit-backdrop-filter: none; }
+/* Stop the background star twinkle animation (cheap perf win) */
+.low-perf .home-map::before,
+.low-perf .home-map::after { animation: none !important; }
+/* Strip drop-shadows / filters that force paint on scroll */
+.low-perf .map-planet svg,
+.low-perf .map-moon svg,
+.low-perf .map-galaxy svg,
+.low-perf .map-blackhole svg { filter: none !important; }
+/* Disable parallax visually by freezing the transform — no JS hit since
+   the script reads a body flag and short-circuits the parallax loop */
+.low-perf .home-deco .deco-galaxy.big,
+.low-perf .home-deco .deco-galaxy.huge,
+.low-perf .home-deco .deco-blackhole.big,
+.low-perf .home-deco .deco-blackhole.huge { transform: none !important; }
 
 /* =========================================================
    SCREEN: SPLASH (Cosmic intro)
@@ -765,14 +784,56 @@ img { -webkit-user-drag: none; user-drag: none; }
      doesn't slide UNDER them */
   padding-top: 60px;
   padding-bottom: 90px;
+  /* ── Scroll performance hints ──
+     contain isolates layout/paint so changes inside don't reflow the page.
+     will-change: scroll-position promotes this to its own compositor layer
+     so the GPU can scroll without involving the main thread. */
+  contain: layout paint style;
+  will-change: scroll-position;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 .home-scroll::-webkit-scrollbar { display: none; }
+
+/* Mobile perf: cut decorative animated elements roughly in half.
+   These are aesthetic shooting stars / comets — losing some has no
+   gameplay impact but frees several persistent CSS animations. */
+@media (max-width: 768px) {
+  .cosmic-comet:nth-child(even),
+  .cosmic-shooter:nth-child(even),
+  .map-cloud:nth-child(even) { display: none; }
+}
+
+/* While the user is actively scrolling, pause all decorative animations.
+   This frees up the main thread so scroll stays at 60fps. The animations
+   resume ~180ms after the scroll stops. */
+.home-scroll.scrolling .level-node.current .lv-hex,
+.home-scroll.scrolling .level-node.boss-level.current .lv-hex,
+.home-scroll.scrolling .level-node.relief-level .lv-hex,
+.home-scroll.scrolling .home-map::before,
+.home-scroll.scrolling .home-map::after,
+.home-scroll.scrolling .cosmic-pulsar,
+.home-scroll.scrolling .cosmic-shooter,
+.home-scroll.scrolling .cosmic-comet,
+.home-scroll.scrolling .cosmic-deco,
+.home-scroll.scrolling .map-planet,
+.home-scroll.scrolling .map-moon,
+.home-scroll.scrolling .map-galaxy,
+.home-scroll.scrolling .map-blackhole,
+.home-scroll.scrolling .map-cloud {
+  animation-play-state: paused !important;
+}
 
 /* The big scrollable map canvas - galactic route (CSS-only, no images) */
 .home-map {
   position: relative;
   width: 100%;
   min-height: 3200px;
+  /* Stand-alone GPU layer for the map's painting */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   /* Solid base colour so anywhere outside the gradient bounds still looks right */
   background-color: #081830;
   /* Vertical deep-space tint — spans the full map height (no tile, no seam) */
@@ -892,7 +953,7 @@ img { -webkit-user-drag: none; user-drag: none; }
 
 /* Aurora cosmic — Dica #7: ribbon ondulante translúcida atravessando o mapa */
 .cosmic-aurora {
-  display: none;
+  display: none !important;
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   pointer-events: none;
@@ -929,7 +990,7 @@ img { -webkit-user-drag: none; user-drag: none; }
 
 /* Gas plumes — Dica #12: nuvens cósmicas usando conic-gradient */
 .cosmic-plumes {
-  display: none;
+  display: none !important;
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   pointer-events: none;
@@ -967,7 +1028,7 @@ img { -webkit-user-drag: none; user-drag: none; }
 
 /* Pulsars — Dica #6: pontos brilhantes pulsando ritmicamente */
 .cosmic-pulsars {
-  display: none;
+  display: none !important;
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   pointer-events: none;
@@ -13315,13 +13376,16 @@ document.addEventListener('keydown', bootAudio, { once: true });
 // Look up x_norm for given (tileIdx, yn).
 // Each tile's curve points are ordered with yn DECREASING.
 // === Map layout config (shared between buildLevels and the scroll handler) ===
+const IS_MOBILE_VIEW = typeof window !== 'undefined' && window.innerWidth <= 768;
 const MAP_LAYOUT = {
   NODE_SPACING_Y: 130,
   MARGIN_TOP: 80,
   MARGIN_BOTTOM: 220,
   // Zigzag suave e centralizado: esquerda, centro, direita, centro, repete
   COLS: [0.30, 0.50, 0.70, 0.50],
-  RENDER_BUFFER_PX: 1500, // render this many px above/below viewport
+  // Smaller buffer on mobile: ~half the viewport vs. 1500px on desktop.
+  // Fewer nodes in DOM = lighter scroll.
+  RENDER_BUFFER_PX: IS_MOBILE_VIEW ? 700 : 1500,
 };
 
 // Compute pixel position for a given level number (independent of which window is rendered)
@@ -13346,7 +13410,7 @@ function _levelPosition(lvNum, mapW, mapH) {
 
 const COSMIC_DECO = {
   SLOT_HEIGHT: 600,      // every 600px there is one cosmic object
-  RENDER_BUFFER_PX: 1500,
+  RENDER_BUFFER_PX: IS_MOBILE_VIEW ? 700 : 1500,
   // Distribution of element types per slot — total weight = 100
   // Cycle through types deterministically based on slot index
   TYPES: [
@@ -13358,9 +13422,9 @@ const COSMIC_DECO = {
     { id: 'sym-planet-lava',   cls: 'deco-planet',    w: 120, h: 120 },
     { id: 'sym-planet-exo',    cls: 'deco-planet',    w: 110, h: 110 },
     { id: 'sym-saturn',        cls: 'deco-saturn',    w: 180, h: 110 },
-    { id: 'sym-black-hole',    cls: 'deco-blackhole', w: 165, h: 165 },
-    { id: 'sym-black-hole',    cls: 'deco-blackhole big', w: 320, h: 320, big: true },
-    { id: 'sym-black-hole',    cls: 'deco-blackhole huge', w: 460, h: 460, big: true },
+    { id: 'sym-black-hole',    cls: 'deco-blackhole', w: 100, h: 100 },
+    { id: 'sym-black-hole',    cls: 'deco-blackhole', w: 100, h: 100 },
+    { id: 'sym-black-hole',    cls: 'deco-blackhole', w: 100, h: 100 },
     { id: 'sym-galaxy',        cls: 'deco-galaxy',    w: 110, h: 110 },
     { id: 'sym-galaxy-blue',   cls: 'deco-galaxy',    w: 110, h: 110 },
     { id: 'sym-galaxy-pink',   cls: 'deco-galaxy',    w: 110, h: 110 },
@@ -13391,41 +13455,33 @@ function _slotHash(slotIdx, salt) {
   return (h ^ (h >>> 16)) >>> 0;
 }
 
+let _parallaxBigItems = null;
 function _updateParallax() {
   // Parallax — Dica #9: galáxias gigantes (camada de fundo) movem-se mais devagar que os elementos pequenos
-  // We translate the .home-deco BIG elements opposite to scroll to create depth.
-  // The .home-deco children with class "big" or "huge" are pushed slightly DOWN as user scrolls UP
-  // (opposite direction = appears further away).
   const scroller = document.getElementById('home-scroll');
   if (!scroller) return;
+  // Low-perf mode: skip parallax entirely (CSS already freezes the transforms)
+  if (document.body.classList.contains('low-perf')) return;
   const scrollTop = scroller.scrollTop;
   
-  // Apply parallax to big galaxies and big black holes
-  const bigItems = document.querySelectorAll('.home-deco .deco-galaxy.big, .home-deco .deco-galaxy.huge, .home-deco .deco-blackhole.big, .home-deco .deco-blackhole.huge');
-  for (const item of bigItems) {
-    // Move them 30% slower than scroll (sit further away)
-    const baseTop = parseFloat(item.dataset.baseTop || item.style.top);
+  // Cache the NodeList — querying every scroll frame is expensive
+  if (!_parallaxBigItems || _parallaxBigItems.length === 0) {
+    _parallaxBigItems = document.querySelectorAll(
+      '.home-deco .deco-galaxy.big, .home-deco .deco-galaxy.huge, .home-deco .deco-blackhole.big, .home-deco .deco-blackhole.huge'
+    );
+  }
+  for (const item of _parallaxBigItems) {
     if (!item.dataset.baseTop) item.dataset.baseTop = item.style.top;
-    const offset = (scrollTop - (item._lastScroll || scrollTop)) * 0;
-    // Simpler: compute using slot anchor
-    // We'll rely on item's intrinsic top + a parallax delta proportional to its own position vs current scroll
     const itemTop = parseFloat(item.dataset.baseTop);
     const distFromView = itemTop - scrollTop;
-    // Move 0.25 of distance (parallax depth factor)
     const parallaxDelta = distFromView * 0.18;
-    item.style.transform = (item.style.transform || '').replace(/translateY\([^)]*\)/g, '') + ` translateY(${parallaxDelta * -0.4}px)`;
-    item._lastScroll = scrollTop;
+    // Use transform composition without regex (much faster)
+    item.style.transform = `translateY(${parallaxDelta * -0.4}px)`;
   }
-  // Apply lighter parallax to plumes (background layer)
-  const plumes = document.querySelectorAll('.cosmic-plume');
-  for (const plume of plumes) {
-    if (!plume.dataset.baseTop) plume.dataset.baseTop = plume.style.top;
-    const itemTop = parseFloat(plume.dataset.baseTop);
-    const distFromView = itemTop - scrollTop;
-    const parallaxDelta = distFromView * 0.10;
-    plume.style.transform = `translateY(${parallaxDelta * -0.3}px) rotate(${(scrollTop * 0.005) % 360}deg)`;
-  }
+  // Plumes are display:none now, skip them entirely
 }
+// Invalidate parallax cache when decoration is re-rendered
+function _invalidateParallaxCache() { _parallaxBigItems = null; }
 
 function _renderCosmicPulsars() {
   // Pulsares — 4-5 pontos brilhantes piscando ritmicamente em diferentes pontos da viewport
@@ -13433,6 +13489,8 @@ function _renderCosmicPulsars() {
   const scroller = document.getElementById('home-scroll');
   const layer = document.getElementById('cosmic-pulsars');
   if (!map || !scroller || !layer) return;
+  // Skip if the layer is hidden anyway — avoids creating DOM no one will see
+  if (getComputedStyle(layer).display === 'none') return;
   
   const mapW = map.offsetWidth || 380;
   const mapH = map.offsetHeight || 1000;
@@ -13478,6 +13536,7 @@ function _renderCosmicPlumes() {
   const scroller = document.getElementById('home-scroll');
   const layer = document.getElementById('cosmic-plumes');
   if (!map || !scroller || !layer) return;
+  if (getComputedStyle(layer).display === 'none') return;
   
   const mapW = map.offsetWidth || 380;
   const mapH = map.offsetHeight || 1000;
@@ -13516,6 +13575,7 @@ function _renderCosmicConstellations() {
   const scroller = document.getElementById('home-scroll');
   const layer = document.getElementById('cosmic-constellations');
   if (!map || !scroller || !layer) return;
+  if (getComputedStyle(layer).display === 'none') return;
   
   const mapW = map.offsetWidth || 380;
   const mapH = map.offsetHeight || 1000;
@@ -13732,7 +13792,9 @@ function _renderCosmicDeco() {
 }
 
 // Render only the levels currently visible in the scroll viewport (virtualization).
-// Called both by buildLevels() (initial) and by the scroll handler (on scroll).
+// INCREMENTAL: keeps existing nodes mounted, only adds new ones / removes ones
+// that left the buffer range. This avoids the flicker caused by wiping the
+// container and rebuilding everything every time the visible window shifts.
 function _renderLevelWindow() {
   const container = document.getElementById('levels-container');
   const map = document.getElementById('home-map');
@@ -13750,24 +13812,31 @@ function _renderLevelWindow() {
   const renderTop = viewTop - L.RENDER_BUFFER_PX;
   const renderBot = viewBot + L.RENDER_BUFFER_PX;
   
-  // yPx = mapH - MARGIN_BOTTOM - (lv-1) * SPACING
-  // Solve for lv given yPx range
-  // lv = ((mapH - MARGIN_BOTTOM) - yPx) / SPACING + 1
   const lvAtY = (yPx) => Math.round((mapH - L.MARGIN_BOTTOM - yPx) / L.NODE_SPACING_Y + 1);
-  // Bottom of the viewport corresponds to LOWER level numbers
   let lvStart = Math.max(1, lvAtY(renderBot) - 1);
   let lvEnd = Math.min(total, lvAtY(renderTop) + 1);
   if (lvEnd < lvStart) return;
   
   // Skip re-render if window unchanged
   if (container._lastStart === lvStart && container._lastEnd === lvEnd) return;
+  const prevStart = container._lastStart;
+  const prevEnd = container._lastEnd;
   container._lastStart = lvStart;
   container._lastEnd = lvEnd;
   
-  // Clear existing nodes
-  container.innerHTML = '';
+  // Track currently-mounted nodes by level number
+  if (!container._mountedNodes) container._mountedNodes = new Map();
+  const mounted = container._mountedNodes;
   
-  // Update connections SVG (covers full mapH; only draws visible window range)
+  // ── Remove nodes that left the new range ──
+  for (const [lvNum, el] of mounted) {
+    if (lvNum < lvStart || lvNum > lvEnd) {
+      el.remove();
+      mounted.delete(lvNum);
+    }
+  }
+  
+  // Update connections SVG (covers full mapH; redrawn each pass, cheap)
   let connectionsSvg = map.querySelector('.home-map-connections');
   if (!connectionsSvg) {
     connectionsSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -13783,9 +13852,7 @@ function _renderLevelWindow() {
   connectionsSvg.setAttribute('viewBox', `0 0 ${mapW} ${mapH}`);
   connectionsSvg.innerHTML = '';
   
-  // Determine the nearest unbeaten boss level (acts as a "gate" — levels after it appear locked)
-  // A boss level is at cyclePos === 4, i.e. levels 5, 11, 17, 23, ... (lv where (lv-1) % 6 === 4)
-  // Find the lowest boss level the player has NOT yet passed (lv >= state.level means unbeaten)
+  // Find the next unbeaten boss gate
   let bossGateLv = Infinity;
   for (let bossLv = 5; bossLv <= total; bossLv += 6) {
     if (bossLv >= state.level) { bossGateLv = bossLv; break; }
@@ -13795,7 +13862,6 @@ function _renderLevelWindow() {
   for (let lv = lvStart; lv < lvEnd; lv++) {
     const a = _levelPosition(lv, mapW, mapH);
     const b = _levelPosition(lv + 1, mapW, mapH);
-    // A connection is "passed" only if the destination is passed AND not beyond an unbeaten boss gate
     const passed = (lv + 1) <= state.level && (lv + 1) <= bossGateLv;
     const color = passed ? 'rgba(120,210,255,0.85)' : 'rgba(120,150,200,0.30)';
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -13810,17 +13876,16 @@ function _renderLevelWindow() {
     connectionsSvg.appendChild(line);
   }
   
-  // Render visible nodes
+  // ── Add only the nodes that are NEW in this pass ──
   for (let lvNum = lvStart; lvNum <= lvEnd; lvNum++) {
+    if (mounted.has(lvNum)) continue; // already in DOM
     const { xPx, yPx } = _levelPosition(lvNum, mapW, mapH);
     
     const node = document.createElement('div');
     node.className = 'level-node';
     const isPassed  = lvNum < state.level;
     const isCurrent = lvNum === state.level;
-    // A level is visually locked if it's beyond state.level OR beyond an unbeaten boss gate
     const isLocked  = lvNum > state.level || lvNum > bossGateLv;
-    // Override: if lvNum is past the gate, treat as locked even if state.level passed it somehow
     const isGated = lvNum > bossGateLv && lvNum !== state.level;
     
     if (isPassed && !isGated)  node.classList.add('passed');
@@ -13836,7 +13901,6 @@ function _renderLevelWindow() {
     node.style.left = xPx + 'px';
     node.style.top  = yPx + 'px';
     
-    // Show direct level number on every node, regardless of state
     const inner = `<div class="lv-hex"><span class="lv-label">${lvNum}</span></div>`;
     
     let starsHtml = '';
@@ -13854,6 +13918,7 @@ function _renderLevelWindow() {
     node.innerHTML = inner + starsHtml;
     node.addEventListener('click', () => onLevelClick(lvNum, isLocked || isGated, isCurrent && !isGated));
     container.appendChild(node);
+    mounted.set(lvNum, node);
   }
 }
 
@@ -13876,21 +13941,46 @@ function buildLevels() {
   // Reset cached window so first render runs
   container._lastStart = null;
   container._lastEnd = null;
+  // Clear mounted nodes — state may have changed (level passed, new current, etc.)
+  if (container._mountedNodes) {
+    for (const el of container._mountedNodes.values()) el.remove();
+    container._mountedNodes.clear();
+  }
   
   // Attach scroll handler (only once)
   if (!scroller._levelsScrollAttached) {
     let scrollRaf = null;
+    let cosmicIdleTimer = null;
+    let scrollEndTimer = null;
     scroller.addEventListener('scroll', () => {
-      if (scrollRaf) return;
-      scrollRaf = requestAnimationFrame(() => {
-        scrollRaf = null;
-        _renderLevelWindow();
+      // Mark scrolling state — CSS pauses non-essential animations
+      if (!scroller.classList.contains('scrolling')) {
+        scroller.classList.add('scrolling');
+      }
+      if (scrollEndTimer) clearTimeout(scrollEndTimer);
+      scrollEndTimer = setTimeout(() => {
+        scroller.classList.remove('scrolling');
+      }, 180);
+
+      // ── Critical layers: render every frame during scroll ──
+      if (!scrollRaf) {
+        scrollRaf = requestAnimationFrame(() => {
+          scrollRaf = null;
+          _renderLevelWindow();
+          _updateParallax();
+        });
+      }
+      // ── Decorative layers: only after scroll has stopped ──
+      // Pulsars/plumes/constellations/deco are aesthetic; updating them
+      // every frame is the main cause of jank on fast scrolls.
+      if (cosmicIdleTimer) clearTimeout(cosmicIdleTimer);
+      cosmicIdleTimer = setTimeout(() => {
         _renderCosmicDeco();
         _renderCosmicPulsars();
         _renderCosmicPlumes();
         _renderCosmicConstellations();
-        _updateParallax();
-      });
+        cosmicIdleTimer = null;
+      }, 140);
     }, { passive: true });
     scroller._levelsScrollAttached = true;
   }
@@ -17249,13 +17339,37 @@ function haptic(pattern) {
 
 /* Low-performance device detection — disables heavy CSS effects */
 function detectLowPerf() {
-  const mem = navigator.deviceMemory; // GB, Chrome only
+  const mem = navigator.deviceMemory;            // GB, Chrome only (undefined elsewhere)
+  const cores = navigator.hardwareConcurrency;    // CPU cores
   const conn = navigator.connection;
   const slowConn = conn && (conn.saveData || conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g');
-  const lowMem = mem !== undefined && mem < 3;
-  if (lowMem || slowConn) {
+  const lowMem  = mem !== undefined && mem < 3;
+  const fewCores = cores !== undefined && cores <= 4;
+  const oldDevice = /Android [4-7]\.|iPhone OS [89]_|iPhone OS 1[0-2]_/i.test(navigator.userAgent);
+  // Heuristic: any one is enough to flag low-perf
+  if (lowMem || slowConn || (fewCores && oldDevice) || oldDevice) {
     document.documentElement.classList.add('low-perf');
+    document.body && document.body.classList.add('low-perf');
+    return;
   }
+  // Otherwise, run a short runtime FPS probe. If the first ~30 frames after
+  // load drop below 45fps on average, switch to low-perf mode dynamically.
+  let frames = 0;
+  let start = performance.now();
+  function probe() {
+    frames++;
+    if (frames >= 30) {
+      const elapsed = performance.now() - start;
+      const fps = (frames / elapsed) * 1000;
+      if (fps < 45) {
+        document.documentElement.classList.add('low-perf');
+        document.body && document.body.classList.add('low-perf');
+      }
+      return;
+    }
+    requestAnimationFrame(probe);
+  }
+  requestAnimationFrame(probe);
 }
 
 function init() {
