@@ -6189,6 +6189,210 @@ img { -webkit-user-drag: none; user-drag: none; }
   letter-spacing: 1px;
 }
 
+/* ════════════════════════════════════════════════════════════
+   SETTINGS MODERN — flat shop pattern, no glow, no gradients
+   ════════════════════════════════════════════════════════════ */
+
+/* Profile card */
+.settings-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 14px;
+  margin-bottom: 4px;
+}
+.settings-profile-avatar {
+  position: relative;
+  width: 56px; height: 56px;
+  flex-shrink: 0;
+}
+.sp-avatar-emoji {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: #2a2160;
+  border: 1.5px solid rgba(167,139,250,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+}
+.sp-avatar-swap {
+  position: absolute;
+  bottom: -2px; right: -2px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #1a1d40;
+  border: 1.5px solid rgba(167,139,250,0.55);
+  color: #c4b5fd;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.sp-avatar-swap:active { transform: scale(0.9); }
+
+.settings-profile-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sp-name-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 7px 10px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  color: rgba(255,255,255,0.85);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+.sp-name-row:active { transform: scale(0.98); }
+.sp-name-edit { color: rgba(255,255,255,0.4); font-size: 12px; }
+.sp-stats-row {
+  display: flex;
+  gap: 6px;
+}
+.sp-stat-chip {
+  flex: 1;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  color: rgba(255,255,255,0.75);
+  padding: 5px 10px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+}
+.sp-stat-chip strong { color: #fff; }
+
+/* Toggle grid (audio + hints) */
+.settings-toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 10px 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  margin-bottom: 4px;
+}
+.settings-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 0;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  transition: transform 0.1s;
+}
+.settings-toggle:active { transform: scale(0.96); }
+.settings-toggle .st-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: rgba(167,139,250,0.18);
+  border: 1px solid rgba(167,139,250,0.45);
+  color: #c4b5fd;
+  font-size: 19px;
+  display: flex; align-items: center; justify-content: center;
+  text-shadow: none;
+  filter: none;
+  box-shadow: none;
+}
+.settings-toggle .st-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: rgba(220,232,255,0.75);
+}
+.settings-toggle.off .st-icon {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.3);
+  position: relative;
+  overflow: hidden;
+}
+.settings-toggle.off .st-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 8%; right: 8%;
+  height: 2px;
+  background: var(--c-neon-red);
+  transform: rotate(-30deg);
+  transform-origin: center;
+}
+.settings-toggle.off .st-label { color: rgba(255,255,255,0.35); }
+
+/* Action list (account, language, privacy, support) */
+.settings-action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.settings-action-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  color: rgba(255,255,255,0.85);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.14s, transform 0.1s;
+}
+.settings-action-row:hover { background: rgba(255,255,255,0.07); }
+.settings-action-row:active { transform: scale(0.98); }
+.settings-action-row .sa-icon {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.settings-action-row .sa-text { flex: 1; }
+.settings-action-row .sa-meta {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  font-weight: 600;
+}
+.settings-action-row .sa-arrow {
+  color: rgba(255,255,255,0.3);
+  font-size: 16px;
+  margin-left: 2px;
+}
+
+/* Footer with ID and version */
+.settings-foot-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 1px;
+}
+
 /* Loja */
 .shop-row {
   background: linear-gradient(180deg,
@@ -9253,37 +9457,86 @@ img { -webkit-user-drag: none; user-drag: none; }
      MODAL: SETTINGS
      ============================================ -->
 <div class="modal-overlay" id="modal-settings">
-  <div class="panel" style="width: min(320px, 92vw);">
+  <div class="panel" style="width: min(360px, 92vw); padding: 20px 16px 16px;">
     <button class="close-x" onclick="closeModal('modal-settings')">✕</button>
-    <div class="settings-row">
-      <div class="settings-avatar">
-        🧑‍🎤
-        <div class="swap">⟲</div>
+
+    <!-- Header — shop pattern -->
+    <div class="shop-header">
+      <div class="shop-header-icon" style="background: linear-gradient(135deg, #5b21b6, #7c3aed);">⚙</div>
+      <div class="shop-header-text">
+        <div class="shop-header-title">SETTINGS</div>
+        <div class="shop-header-sub">Preferences and account</div>
       </div>
-      <div class="settings-fields">
-        <div class="settings-input"><span>Enter your name</span><span>✏️</span></div>
-        <div class="settings-input">
-          <span>Level <span id="settings-level">1</span></span>
-          <span>⭐ <span id="settings-stars">0</span></span>
+    </div>
+
+    <!-- Profile card -->
+    <div class="settings-profile-card">
+      <div class="settings-profile-avatar">
+        <span class="sp-avatar-emoji">🧑‍🎤</span>
+        <button class="sp-avatar-swap" title="Change avatar">⟲</button>
+      </div>
+      <div class="settings-profile-info">
+        <button class="sp-name-row">
+          <span class="sp-name">Enter your name</span>
+          <span class="sp-name-edit">✏️</span>
+        </button>
+        <div class="sp-stats-row">
+          <span class="sp-stat-chip">⭐ Lv. <strong id="settings-level">1</strong></span>
+          <span class="sp-stat-chip">🌟 <strong id="settings-stars">0</strong></span>
         </div>
       </div>
     </div>
 
-    <div class="settings-grid-btns">
-      <button class="btn btn-green">🌐 Language</button>
-      <button class="btn btn-green">ℹ️ Privacy</button>
+    <!-- Audio & gameplay toggles -->
+    <div class="shop-section-title">Audio & Gameplay</div>
+    <div class="settings-toggle-grid">
+      <div class="settings-toggle" id="tg-music" onclick="toggleSetting(this)">
+        <div class="st-icon">🎵</div>
+        <div class="st-label">MUSIC</div>
+      </div>
+      <div class="settings-toggle" id="tg-sound" onclick="toggleSetting(this)">
+        <div class="st-icon">🔊</div>
+        <div class="st-label">SOUND</div>
+      </div>
+      <div class="settings-toggle" id="tg-voice" onclick="toggleSetting(this)">
+        <div class="st-icon">🗣</div>
+        <div class="st-label">VOICE</div>
+      </div>
+      <div class="settings-toggle" id="tg-info" onclick="toggleSetting(this)">
+        <div class="st-icon">💡</div>
+        <div class="st-label">HINTS</div>
+      </div>
     </div>
 
-    <div class="settings-toggles">
-      <div class="toggle-icon" id="tg-music"   onclick="toggleSetting(this)">🎵</div>
-      <div class="toggle-icon" id="tg-sound"   onclick="toggleSetting(this)">🔊</div>
-      <div class="toggle-icon" id="tg-voice"   onclick="toggleSetting(this)">🗣</div>
-      <div class="toggle-icon" id="tg-home"    onclick="closeModal('modal-settings'); goToSplash();">🏠</div>
-      <div class="toggle-icon" id="tg-info"    onclick="toggleSetting(this)">💡</div>
+    <!-- Account & info -->
+    <div class="shop-section-title">Account</div>
+    <div class="settings-action-list">
+      <button class="settings-action-row" id="tg-home" onclick="closeModal('modal-settings'); goToSplash();">
+        <span class="sa-icon">🏠</span>
+        <span class="sa-text">Home Screen</span>
+        <span class="sa-arrow">›</span>
+      </button>
+      <button class="settings-action-row" onclick="toast('Language coming soon!');">
+        <span class="sa-icon">🌐</span>
+        <span class="sa-text">Language</span>
+        <span class="sa-meta">English</span>
+        <span class="sa-arrow">›</span>
+      </button>
+      <button class="settings-action-row" onclick="toast('Privacy policy coming soon!');">
+        <span class="sa-icon">🔒</span>
+        <span class="sa-text">Privacy Policy</span>
+        <span class="sa-arrow">›</span>
+      </button>
+      <button class="settings-action-row" onclick="toast('Support coming soon!');">
+        <span class="sa-icon">✉️</span>
+        <span class="sa-text">Contact Support</span>
+        <span class="sa-arrow">›</span>
+      </button>
     </div>
 
-    <div class="settings-foot">
-      <span>ID: 1416408461</span>
+    <div class="settings-foot-modern">
+      <span>Player ID: 1416408461</span>
+      <span>v1.0</span>
     </div>
   </div>
 </div>
@@ -12123,6 +12376,41 @@ function loadGame() {
       audio.bgmMuted = !!data.bgmMuted;
       audio.sfxMuted = !!data.sfxMuted;
     }
+
+    // ─────────────────────────────────────────────────────────────
+    // Bug #6 mitigation: validate level coherence against evidence.
+    // A player who edits state.level via console must also have
+    // matching passedLevels + bestScores. If level is way ahead of
+    // both, treat as tampering and clamp down.
+    // ─────────────────────────────────────────────────────────────
+    {
+      const claimedLevel = state.level || 1;
+      const passedCount = Array.isArray(state.passedLevels) ? state.passedLevels.length : 0;
+      const bestScoresCount = state.bestScores ? Object.keys(state.bestScores).length : 0;
+      // Best "evidence" of progression: take the larger of the two trustworthy signals
+      const evidenceLevel = Math.max(passedCount, bestScoresCount) + 1;
+      // Tolerance: allow up to 2 levels of drift (rare race conditions on save)
+      const TOLERANCE = 2;
+      if (claimedLevel > evidenceLevel + TOLERANCE) {
+        console.warn(
+          'Level coherence check failed: state.level=' + claimedLevel +
+          ' but evidence suggests max=' + evidenceLevel +
+          '. Clamping to evidence value.'
+        );
+        state.level = evidenceLevel;
+        state.highestUnlocked = Math.min(state.highestUnlocked || 1, evidenceLevel);
+        state._tampered = true; // disables time-based rewards
+      }
+      // Also clamp highestUnlocked — should never be lower than level
+      if ((state.highestUnlocked || 1) < state.level) {
+        state.highestUnlocked = state.level;
+      }
+      // And never higher than level + 1 (you can only be working on 1 future level)
+      if ((state.highestUnlocked || 1) > state.level + 1) {
+        state.highestUnlocked = state.level;
+      }
+    }
+
     return true;
   } catch (e) {
     console.warn('Load failed:', e);
@@ -16510,6 +16798,14 @@ function showScorePanel() {
     if (lv >= state.level) {
       state.level = Math.min(state.totalLevels, lv + 1);
     }
+    // Bug #6 mitigation: keep passedLevels as parallel evidence of progression.
+    // The load-time validator cross-checks state.level against this list.
+    if (!Array.isArray(state.passedLevels)) state.passedLevels = [];
+    if (!state.passedLevels.includes(lv)) {
+      state.passedLevels.push(lv);
+    }
+    // Keep highestUnlocked aligned with the new level
+    state.highestUnlocked = Math.max(state.highestUnlocked || 1, state.level);
     // === STATION COMPLETED celebration each 10 levels ===
     if (lv % 10 === 0) {
       setTimeout(() => showStationComplete(lv), 300);
