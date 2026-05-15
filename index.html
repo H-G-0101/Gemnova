@@ -4026,6 +4026,153 @@ img { -webkit-user-drag: none; user-drag: none; }
   flex-shrink: 0;
 }
 
+/* ════════════════════════════════════════════════════════════
+   CONTINUE / OUT OF MOVES — flat shop pattern
+   ════════════════════════════════════════════════════════════ */
+
+/* Objectives reminder block — flat */
+.continue-objectives-modern {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 8px;
+  margin-bottom: 4px;
+}
+.continue-objectives-modern .pause-obj {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 7px 10px;
+  font-size: 12px;
+}
+.continue-objectives-modern .pause-obj.done {
+  background: rgba(77,255,166,0.10);
+  border-color: rgba(77,255,166,0.35);
+  border-left: 2px solid var(--c-neon-green);
+}
+.continue-objectives-modern .pause-obj .po-progress,
+.continue-objectives-modern .pause-obj .po-check {
+  color: var(--c-neon-cyan);
+  text-shadow: none;
+}
+.continue-objectives-modern .pause-obj.done .po-progress,
+.continue-objectives-modern .pause-obj.done .po-check {
+  color: var(--c-neon-green);
+}
+
+/* Continue option cards (coins / ad) */
+.continue-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.continue-opt-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-display);
+  transition: transform 0.1s ease, background 0.14s;
+  text-shadow: none;
+  box-shadow: none;
+}
+.continue-opt-card:active { transform: scale(0.98); }
+
+.continue-opt-coins {
+  background: rgba(0,229,255,0.10);
+  border: 1px solid rgba(0,229,255,0.4);
+}
+.continue-opt-coins:hover { background: rgba(0,229,255,0.15); }
+.continue-opt-ad {
+  background: rgba(217,119,6,0.10);
+  border: 1px solid rgba(217,119,6,0.4);
+}
+.continue-opt-ad:hover { background: rgba(217,119,6,0.15); }
+
+.continue-opt-card .co-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.continue-opt-coins .co-icon {
+  background: rgba(0,229,255,0.18);
+  border: 1px solid rgba(0,229,255,0.5);
+}
+.continue-opt-ad .co-icon {
+  background: rgba(217,119,6,0.2);
+  border: 1px solid rgba(217,119,6,0.5);
+}
+
+.continue-opt-card .co-body {
+  flex: 1;
+  min-width: 0;
+}
+.continue-opt-card .co-title {
+  font-weight: 900;
+  font-size: 14px;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+.continue-opt-card .co-sub {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.3px;
+}
+.continue-opt-card .co-cost {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 16px;
+  color: var(--c-neon-cyan);
+  flex-shrink: 0;
+  padding: 4px 12px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 999px;
+  border: 1px solid rgba(0,229,255,0.4);
+}
+.continue-opt-card .co-cost::before {
+  content: '💎 ';
+  font-size: 13px;
+}
+.continue-opt-card .co-cost-tag {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 11px;
+  color: #fff;
+  flex-shrink: 0;
+  padding: 4px 10px;
+  background: rgba(0,0,0,0.35);
+  border-radius: 999px;
+  border: 1px solid rgba(217,119,6,0.5);
+  letter-spacing: 1.5px;
+}
+
+/* Decline link at the bottom */
+.continue-decline {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.continue-decline:hover { color: rgba(255,255,255,0.7); }
+.continue-decline:active { transform: scale(0.97); }
+
 /* Shop heart timer banner */
 .shop-heart-timer {
   display: none;
@@ -7415,6 +7562,188 @@ img { -webkit-user-drag: none; user-drag: none; }
   white-space: nowrap;
 }
 
+/* ════════════════════════════════════════════════════════════
+   VICTORY / SCORE MODAL — flat shop pattern
+   ════════════════════════════════════════════════════════════ */
+
+/* Stars (flat, no glow) */
+.sp-stars-flat {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+.sp-stars-flat .sp-star {
+  font-size: 40px;
+  color: rgba(255,255,255,0.15);
+  text-shadow: none;
+  filter: none;
+  line-height: 1;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+.sp-stars-flat .sp-star.lit {
+  color: #ffd54a;
+  animation: spStarPop 0.4s cubic-bezier(.34,1.6,.5,1);
+}
+.sp-stars-flat .sp-star.dim { color: rgba(255,255,255,0.12); }
+@keyframes spStarPop {
+  0%   { transform: scale(0.4); }
+  60%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+/* New record badge (flat, no glow) */
+.sp-newrecord-badge-flat {
+  display: none;
+  margin: 8px auto 0;
+  padding: 4px 12px;
+  background: rgba(217,119,6,0.15);
+  border: 1px solid rgba(217,119,6,0.5);
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 11px;
+  color: #ffd54a;
+  letter-spacing: 1.5px;
+  text-shadow: none;
+  box-shadow: none;
+  animation: none;
+}
+.sp-newrecord-badge-flat[style*="inline-block"],
+.sp-newrecord-badge-flat[style*="block"] { display: inline-block !important; }
+
+/* Score card */
+.sp-score-card {
+  margin: 10px 0 8px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 14px;
+  text-align: center;
+}
+.sp-score-card-label {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 2px;
+}
+.sp-score-card-value {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 32px;
+  color: #fff;
+  text-shadow: none;
+  line-height: 1;
+}
+
+/* Reward card */
+.sp-reward-card {
+  margin: 0 0 10px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 14px;
+  text-align: center;
+}
+.sp-reward-card-label {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 4px;
+}
+.sp-reward-card-amount {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 22px;
+  color: var(--c-neon-cyan);
+  text-shadow: none;
+}
+.sp-reward-card-icon {
+  font-size: 24px;
+  filter: none;
+}
+
+/* XP card */
+.sp-xp-card {
+  margin: 0 0 4px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 14px;
+}
+.sp-xp-card-label {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 10.5px;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.65);
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+/* Action buttons — flat */
+.sp-buttons-row {
+  margin-top: 14px;
+}
+.sp-btn-next {
+  flex: 1;
+  padding: 14px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 2.5px;
+  border-radius: 999px;
+  background: #0c3a24;
+  border: 2px solid var(--c-neon-green);
+  color: var(--c-neon-green);
+  cursor: pointer;
+  text-shadow: none;
+  box-shadow: none;
+  transition: transform 0.1s ease, background 0.14s;
+}
+.sp-btn-next:active {
+  transform: scale(0.97);
+  background: #082a1c;
+}
+.sp-btn-get {
+  flex: 1;
+  padding: 14px;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 1.5px;
+  border-radius: 999px;
+  background: rgba(217,119,6,0.18);
+  border: 2px solid #d97706;
+  color: #ffd54a;
+  cursor: pointer;
+  text-shadow: none;
+  box-shadow: none;
+  transition: transform 0.1s ease, background 0.14s;
+}
+.sp-btn-get:active {
+  transform: scale(0.97);
+  background: rgba(217,119,6,0.28);
+}
+.sp-btn-get .ad-tag {
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+}
+.sp-btn-get .get-icon { font-size: 16px; }
+
 /* Pink glowing GET button */
 .btn-pink-glow {
   touch-action: manipulation;
@@ -10712,35 +11041,45 @@ img { -webkit-user-drag: none; user-drag: none; }
      - Score, Reward (diamonds), XP bar, NEXT button (+ GET when full)
      ============================================ -->
 <div class="modal-overlay" id="modal-score">
-  <div class="panel" style="width: min(320px, 92vw); text-align:center; position:relative;">
-    <div class="panel-banner" id="sp-level">SECTOR 1 COMPLETO</div>
+  <div class="panel" style="width: min(340px, 92vw); padding: 20px 16px 16px; text-align:center; position:relative;">
     <button class="close-x" onclick="closeScorePanelAndContinue();">✕</button>
-    <div style="height:30px;"></div>
 
-    <div class="result-stars" style="margin: 10px 0;">
-      <span class="s lit" id="sp-rs-1">⭐</span>
-      <span class="s lit" id="sp-rs-2">⭐</span>
-      <span class="s lit" id="sp-rs-3">⭐</span>
+    <!-- Header — shop pattern -->
+    <div class="shop-header" style="text-align:left;">
+      <div class="shop-header-icon" style="background: linear-gradient(135deg, #047857, #10b981);">✓</div>
+      <div class="shop-header-text">
+        <div class="shop-header-title" id="sp-level">SECTOR 1 COMPLETE</div>
+        <div class="shop-header-sub">Mission accomplished</div>
+      </div>
     </div>
 
-    <div class="sp-newrecord-badge" id="sp-newrecord">🏆 NOVO RECORDE</div>
-
-    <div class="sp-score-block">
-      <div class="sp-score-label">SCORE</div>
-      <div class="sp-score-value" id="sp-score">0</div>
+    <!-- Stars (flat, no glow) -->
+    <div class="sp-stars-flat" style="margin: 8px 0 4px;">
+      <span class="sp-star" id="sp-rs-1">★</span>
+      <span class="sp-star" id="sp-rs-2">★</span>
+      <span class="sp-star" id="sp-rs-3">★</span>
     </div>
 
-    <div class="sp-reward-simple">
-      <div class="sp-reward-label-top">REWARD</div>
-      <div class="sp-reward-line">
-        <span class="sp-reward-diamond">💎</span>
-        <span class="sp-reward-amount" id="sp-diamonds">×0</span>
+    <div class="sp-newrecord-badge-flat" id="sp-newrecord">🏆 NEW RECORD</div>
+
+    <!-- Score card -->
+    <div class="sp-score-card">
+      <div class="sp-score-card-label">SCORE</div>
+      <div class="sp-score-card-value" id="sp-score">0</div>
+    </div>
+
+    <!-- Reward card -->
+    <div class="sp-reward-card">
+      <div class="sp-reward-card-label">REWARD</div>
+      <div class="sp-reward-card-amount">
+        <span class="sp-reward-card-icon">💎</span>
+        <span id="sp-diamonds">×0</span>
       </div>
     </div>
 
     <!-- XP bar with 5 segments + wheel icon at the end -->
-    <div class="sp-xp-block">
-      <div class="sp-xp-label" id="sp-xp-label">0/5 TO BONUS</div>
+    <div class="sp-xp-card">
+      <div class="sp-xp-card-label" id="sp-xp-label">0 / 5 TO BONUS</div>
       <div class="sp-xp-bar-wrap">
         <div class="sp-xp-bar">
           <div class="sp-xp-fill" id="sp-xp-fill"></div>
@@ -10762,8 +11101,8 @@ img { -webkit-user-drag: none; user-drag: none; }
 
     <!-- Buttons row: NEXT alone, or NEXT + GET when bar is full -->
     <div class="sp-buttons-row">
-      <button class="btn btn-green" id="sp-continue-btn" onclick="closeScorePanelAndContinue();">NEXT</button>
-      <button class="btn-pink-glow" id="sp-get-btn" onclick="claimFreeSpin();" style="display:none;">
+      <button class="sp-btn-next" id="sp-continue-btn" onclick="closeScorePanelAndContinue();">NEXT</button>
+      <button class="sp-btn-get" id="sp-get-btn" onclick="claimFreeSpin();" style="display:none;">
         <span class="ad-tag">AD</span>
         <span class="get-icon">💎</span>
         <span class="get-text">GET</span>
@@ -10917,26 +11256,45 @@ img { -webkit-user-drag: none; user-drag: none; }
      MODAL: CONTINUE (out of moves)
      ============================================ -->
 <div class="modal-overlay" id="modal-continue">
-  <div class="panel" style="width: min(320px, 92vw); text-align: center; position: relative;">
-    <div class="panel-banner" style="background: linear-gradient(180deg, #2a0a3a, #4a1f8a); color: var(--c-neon-pink); border-color: var(--c-neon-pink); text-shadow: 0 0 8px var(--c-neon-pink);">
-      ⚠ OUT OF MOVES
-    </div>
+  <div class="panel" style="width: min(340px, 92vw); padding: 20px 16px 16px; position: relative;">
     <button class="close-x" onclick="declineContinue();">✕</button>
-    <div style="height:30px;"></div>
 
-    <div class="continue-objectives" id="continue-objectives"></div>
+    <!-- Header — shop pattern, red/pink theme for warning -->
+    <div class="shop-header">
+      <div class="shop-header-icon" style="background: linear-gradient(135deg, #9d174d, #db2777);">⚠</div>
+      <div class="shop-header-text">
+        <div class="shop-header-title">OUT OF MOVES</div>
+        <div class="shop-header-sub">Get more moves to keep playing</div>
+      </div>
+    </div>
 
-    <button class="btn-pay-coins" id="continue-pay-btn" onclick="continueWithCoins();">
-      <span class="pay-bonus">+5</span>
-      <span class="pay-text">CONTINUE</span>
-      <span class="pay-cost"><span style="color:var(--c-neon-cyan);">💎</span> 100</span>
-    </button>
+    <!-- Objectives reminder -->
+    <div class="shop-section-title">Mission progress</div>
+    <div class="continue-objectives-modern" id="continue-objectives"></div>
 
-    <button class="btn-pay-ad" onclick="continueWithAd();">
-      <span class="pay-bonus">+3</span>
-      <span class="pay-text">ASSISTA UM VÍDEO</span>
-      <span class="pay-ad-tag">AD</span>
-    </button>
+    <!-- Continue options -->
+    <div class="shop-section-title">Choose how to continue</div>
+    <div class="continue-options">
+      <button class="continue-opt-card continue-opt-coins" onclick="continueWithCoins();">
+        <div class="co-icon">💎</div>
+        <div class="co-body">
+          <div class="co-title">+5 Moves</div>
+          <div class="co-sub">Continue immediately</div>
+        </div>
+        <div class="co-cost">100</div>
+      </button>
+
+      <button class="continue-opt-card continue-opt-ad" onclick="continueWithAd();">
+        <div class="co-icon">📺</div>
+        <div class="co-body">
+          <div class="co-title">+3 Moves</div>
+          <div class="co-sub">Watch a short video</div>
+        </div>
+        <div class="co-cost-tag">FREE</div>
+      </button>
+    </div>
+
+    <button class="continue-decline" onclick="declineContinue();">No thanks, end game</button>
   </div>
 </div>
 
