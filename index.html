@@ -17,6 +17,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@400;600;700;800&family=Audiowide&display=optional" rel="stylesheet">
+<script src="https://app.cidi.games/sdk/cidi-sdk.js?v=20260427-expose-init-await-pi-init-1"></script>
+<script src="https://elf-resource.cidi.games/sdk/cidi-proxy-sdk.umd.js"></script>
 <style>/* =========================================================
    COSMIC CRUSH - HTML5 mobile match-3 - single file
    Space-themed: starfield,
@@ -17534,7 +17536,46 @@ function getSecondsUntilEndOfWeek() {
 // Ranking is initialized on demand via onclick handlers
 
 document.addEventListener('contextmenu', e => e.preventDefault());
-window.addEventListener('load', init);
+
+// ── CidiProxySDK client (Login SDK) ─────────────────────────
+// Created once at module scope so other code can call client.report.* after login
+let cidiClient = null;
+
+async function bootstrap() {
+  // 1. CiDiSDK Storage — ensures localStorage is usable in Pi Browser
+  if (typeof CiDiSDK !== 'undefined') {
+    try {
+      await CiDiSDK.init();
+      console.log('[CiDiSDK] Initialized — localStorage is ready');
+    } catch (err) {
+      console.error('[CiDiSDK] Initialization failed:', err);
+    }
+  }
+
+  // 2. Offline Login SDK — exchange tempToken for accessToken
+  if (typeof CidiProxySDK !== 'undefined') {
+    try {
+      cidiClient = CidiProxySDK.createClient({
+        baseURL: "https://elf-proxy.cidi.games/api/v1",
+        apiKey: "CIDI_80612353EF704E32"
+      });
+      const ok = await cidiClient.auth.login();
+      if (ok) {
+        console.log('[CidiProxySDK] Login succeeded — accessToken in memory');
+      } else {
+        console.warn('[CidiProxySDK] Login returned false');
+      }
+    } catch (err) {
+      // Common outside CiDi platform: TEMP_TOKEN_NOT_FOUND / LOCATION_UNAVAILABLE
+      console.warn('[CidiProxySDK] Login skipped:', err.message || err);
+      cidiClient = null;
+    }
+  }
+
+  // 3. Start the game
+  init();
+}
+window.addEventListener('load', bootstrap);
 let _resizeTimer = null;
 window.addEventListener('resize', () => {
   clearTimeout(_resizeTimer);
