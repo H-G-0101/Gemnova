@@ -17130,11 +17130,47 @@ function showWheelPrize(diamonds) {
 // ═══════════════════════════════════════════════════════════════
 // §27 ADS (SIMULATED — TODO: replace with CiDi.ads.showRewarded)
 // ═══════════════════════════════════════════════════════════════
-function showAdSimulation(callback) {
+async function showAdSimulation(callback) {
+  // ── CiDiSDK Rewarded Ad (real) ──────────────────────────────
+  if (typeof CiDiSDK !== 'undefined' && typeof CiDiSDK.showRewardedAd === 'function') {
+    const fill = document.getElementById('ad-progress-fill');
+    if (fill) { fill.style.width = '0%'; fill.style.transition = 'none'; }
+    openModal('modal-ad');
+
+    // Pulse the bar while waiting (up to 90%)
+    let _pct = 0;
+    const _pulse = setInterval(() => {
+      _pct = Math.min(90, _pct + 3);
+      if (fill) fill.style.width = _pct + '%';
+    }, 100);
+
+    try {
+      const result = await CiDiSDK.showRewardedAd();
+      clearInterval(_pulse);
+      if (fill) { fill.style.transition = 'width 0.3s'; fill.style.width = '100%'; }
+      setTimeout(() => {
+        closeModal('modal-ad');
+        if (result && result.success === true) {
+          callback && callback();
+        } else {
+          if (typeof debugLog === 'function') debugLog('⚠️ Ad sem recompensa: ' + JSON.stringify(result), '#fa0');
+          showHudMessage('Anúncio não recompensado. Tente novamente.', 'error', 2000);
+        }
+      }, 300);
+    } catch (err) {
+      clearInterval(_pulse);
+      closeModal('modal-ad');
+      if (typeof debugLog === 'function') debugLog('❌ showRewardedAd: ' + (err.message || err), '#f44');
+      showHudMessage('Anúncio indisponível. Tente novamente.', 'error', 2000);
+    }
+    return;
+  }
+
+  // ── Fallback: simulação (fora do Pi Browser / ambiente de teste) ──
   const fill = document.getElementById('ad-progress-fill');
   if (fill) fill.style.width = '0%';
   openModal('modal-ad');
-  const duration = 2200; // 2.2s simulated ad
+  const duration = 2200;
   const start = performance.now();
   function tick(now) {
     const t = Math.min(1, (now - start) / duration);
@@ -17537,41 +17573,93 @@ function getSecondsUntilEndOfWeek() {
 
 document.addEventListener('contextmenu', e => e.preventDefault());
 
+// ── Debug overlay (temporary — remove after login is confirmed working) ──
+function createDebugOverlay() {
+  const el = document.createElement('div');
+  el.id = 'cidi-debug';
+  el.style.cssText = `
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999;
+    background: rgba(0,0,0,0.88); color: #0ff; font-family: monospace;
+    font-size: 11px; padding: 8px 10px; line-height: 1.6;
+    border-top: 1px solid #0ff; max-height: 38vh; overflow-y: auto;
+    pointer-events: auto;
+  `;
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕ fechar debug';
+  closeBtn.style.cssText = `
+    display: block; margin: 4px 0 6px; background: #c00; color: #fff;
+    border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;
+  `;
+  closeBtn.onclick = () => el.remove();
+  el.appendChild(closeBtn);
+  const log = document.createElement('div');
+  log.id = 'cidi-debug-log';
+  el.appendChild(log);
+  document.body.appendChild(el);
+  return log;
+}
+
+function debugLog(msg, color) {
+  const log = document.getElementById('cidi-debug-log');
+  if (!log) return;
+  const line = document.createElement('div');
+  line.style.color = color || '#0ff';
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
+
+const _debugLog = createDebugOverlay();
+
+// Show URL info
+debugLog('── URL Debug ──', '#ff0');
+debugLog('href: ' + window.location.href);
+debugLog('search: ' + (window.location.search || '(vazia)'));
+const _tp = new URLSearchParams(window.location.search).get('tempToken');
+debugLog('tempToken: ' + (_tp ? _tp.slice(0,20) + '…' : '❌ NÃO ENCONTRADO'), _tp ? '#0f0' : '#f44');
+
 // ── CidiProxySDK client (Login SDK) ─────────────────────────
 // Created once at module scope so other code can call client.report.* after login
 let cidiClient = null;
 
 async function bootstrap() {
   // 1. CiDiSDK Storage — ensures localStorage is usable in Pi Browser
+  debugLog('── CiDiSDK ──', '#ff0');
   if (typeof CiDiSDK !== 'undefined') {
     try {
       await CiDiSDK.init();
-      console.log('[CiDiSDK] Initialized — localStorage is ready');
+      debugLog('✅ CiDiSDK.init() OK — localStorage pronto', '#0f0');
     } catch (err) {
-      console.error('[CiDiSDK] Initialization failed:', err);
+      debugLog('❌ CiDiSDK.init() falhou: ' + (err.message || err), '#f44');
     }
+  } else {
+    debugLog('⚠️ CiDiSDK não definido (fora do Pi Browser?)', '#fa0');
   }
 
   // 2. Offline Login SDK — exchange tempToken for accessToken
+  debugLog('── CidiProxySDK ──', '#ff0');
   if (typeof CidiProxySDK !== 'undefined') {
     try {
       cidiClient = CidiProxySDK.createClient({
         baseURL: "https://elf-proxy.cidi.games/api/v1",
         apiKey: "CIDI_80612353EF704E32"
       });
+      debugLog('client criado, chamando auth.login()…');
       const ok = await cidiClient.auth.login();
       if (ok) {
-        console.log('[CidiProxySDK] Login succeeded — accessToken in memory');
+        debugLog('✅ Login OK — accessToken em memória', '#0f0');
       } else {
-        console.warn('[CidiProxySDK] Login returned false');
+        debugLog('⚠️ login() retornou false', '#fa0');
       }
     } catch (err) {
-      // Common outside CiDi platform: TEMP_TOKEN_NOT_FOUND / LOCATION_UNAVAILABLE
-      console.warn('[CidiProxySDK] Login skipped:', err.message || err);
+      debugLog('❌ Login falhou: ' + (err.message || err), '#f44');
       cidiClient = null;
     }
+  } else {
+    debugLog('⚠️ CidiProxySDK não definido', '#fa0');
   }
 
+  debugLog('── iniciando jogo ──', '#ff0');
   // 3. Start the game
   init();
 }
