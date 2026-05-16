@@ -3042,17 +3042,18 @@ pulse targets */
 }
 /* === TROPHY (escort objective) === */
 .obs-trophy{
+  /* Lighter, more transparent background so the emoji stays visible */
   background:
-    radial-gradient(circle at 30% 30%, #fff5b4, transparent 60%),
-    linear-gradient(180deg, #ffd54a 0%, #f5a623 60%, #b8730e 100%);
-  border: 2px solid #8b5a0e;
-  color: #6e3a10;
-  font-size: 22px;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+    radial-gradient(circle at 50% 50%, rgba(255,213,74,0.25), rgba(255,140,0,0.15));
+  border: 2px solid rgba(255,213,74,0.7);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
   box-shadow:
-    inset 0 2px 4px rgba(255,255,255,0.45),
-    0 2px 6px rgba(0,0,0,0.4),
-    0 0 12px rgba(255,213,74,0.45);
+    inset 0 1px 2px rgba(255,255,255,0.3),
+    0 0 14px rgba(255,213,74,0.45);
 }
 .trophy-collected{
   animation: trophyCollect 0.5s ease-out forwards;
@@ -3062,6 +3063,30 @@ pulse targets */
   0%   { transform: scale(1) translateY(0); opacity: 1; }
   50%  { transform: scale(1.4) translateY(-12px); opacity: 1; }
   100% { transform: scale(0.5) translateY(40px); opacity: 0; }
+}
+/* === TROPHY TRAY SLOTS (last row destination) === */
+.trophy-tray-slot{
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: 8px;
+  border: 2px dashed rgba(255,213,74,0.55);
+  background: rgba(255,213,74,0.06);
+  box-shadow:
+    inset 0 0 8px rgba(255,213,74,0.15);
+  animation: traySlotPulse 2.2s ease-in-out infinite;
+}
+@keyframes traySlotPulse {
+  0%, 100% { border-color: rgba(255,213,74,0.45); }
+  50%      { border-color: rgba(255,213,74,0.85); }
+}
+.trophy-tray-slot.flash{
+  animation: traySlotFlash 0.6s ease-out;
+  background: rgba(255,213,74,0.25);
+}
+@keyframes traySlotFlash {
+  0%   { background: rgba(255,213,74,0.55); transform: scale(1.05); }
+  100% { background: rgba(255,213,74,0.06); transform: scale(1); }
 }/* === GRAVITY ZONE INDICATOR === */
 .gravity-zone{
   position: absolute;
@@ -10836,6 +10861,14 @@ function makeLevel(lv) {
     }
   }
 
+  // === TROPHY LEVELS: force simple layout (no big central holes) ===
+  // Trophy needs a clear path down — donut/islands/cross break the path.
+  // We force 'square' shape on trophy levels so the trophy can always reach the bottom.
+  const isTrophyLevel = (lv >= 13 && !isRelief && !isBoss && ((lv - 13) % 7 === 0));
+  if (isTrophyLevel) {
+    def.layoutShape = 'square';
+  }
+
   // Apply layout shape -> generate holes
   applyLayoutShape(def);
 
@@ -10939,12 +10972,11 @@ function makeLevel(lv) {
     def.trashOnCombo = true;
   }
 
-  // === TROPHY ESCORT (lv 12+, every 7 levels, excluding relief) ===
-  // Scaling: lv 12+ → 1 trophy, lv 200+ → 1-2 trophies, lv 1000+ → 1-3 trophies
-  if (lv >= 12 && !isRelief && (lv % 7 === 5)) {
-    let trophyCount = 1;
-    if (lv >= 1000) trophyCount = 1 + Math.floor(rng() * 3); // 1-3
-    else if (lv >= 200) trophyCount = 1 + Math.floor(rng() * 2); // 1-2
+  // === TROPHY ESCORT (every 7 levels starting at lv 13, excluding relief & boss) ===
+  // Trophy levels: 13, 20, 27, 34, 41... (skips boss/relief automatically)
+  // Always 1 trophy per level for simplicity.
+  if (lv >= 13 && !isRelief && !isBoss && ((lv - 13) % 7 === 0)) {
+    const trophyCount = 1;
     def.trophyCount = trophyCount;
     // Spawn trophies in upper half of the board (rows 0 to rows/2)
     const exclude = [...def.initialObstacles.map(o => `${o.r},${o.c}`), ...def.initialHoles.map(h => `${h.r},${h.c}`)];
@@ -13868,6 +13900,27 @@ function initBoard() {
     }
   }
 
+  // === TROPHY TRAY ===
+  // If this level has trophies to escort, render a golden border on the last row's cells
+  // to signal the destination. Slot highlights when a trophy is collected.
+  if (state.game.def && state.game.def.trophyCount > 0) {
+    const lastRow = state.game.rows - 1;
+    const cs3 = state.game.cellSize;
+    const g3 = state.game.cellGap || 2;
+    for (let c = 0; c < state.game.cols; c++) {
+      // Only mark cells that can hold gems (skip holes/permanent obstacles)
+      if (!canHoldGem(lastRow, c)) continue;
+      const slot = document.createElement('div');
+      slot.className = 'trophy-tray-slot';
+      slot.dataset.c = c;
+      slot.style.left = (c * (cs3 + g3)) + 'px';
+      slot.style.top  = (lastRow * (cs3 + g3)) + 'px';
+      slot.style.width  = cs3 + 'px';
+      slot.style.height = cs3 + 'px';
+      grid.appendChild(slot);
+    }
+  }
+
   // Render gravity zones (visual indicators)
   if (state.game.def && state.game.def.gravityZones) {
     for (const z of state.game.def.gravityZones) {
@@ -14791,6 +14844,89 @@ function allObjectivesDone() {
 }
 
 /* =========================================================
+   TROPHY GRAVITY — moves trophies down through empty cells.
+   Returns true if any trophy moved (so caller can re-drop gems).
+   ========================================================= */
+async function applyTrophyGravity() {
+  const g = state.game;
+  if (!g.def || !g.def.trophyCount || g.def.trophyCount <= 0) return false;
+  const R = g.rows, C = g.cols;
+  const cs = g.cellSize;
+  let movedAny = false;
+  for (let c = 0; c < C; c++) {
+    // Bottom-up so trophies cascade if multiple are stacked
+    for (let r = R - 1; r >= 0; r--) {
+      const o = g.obstacles[r] && g.obstacles[r][c];
+      if (!o || o.type !== OBS.TROPHY) continue;
+      // Find how far the trophy can fall (chain through empty cells)
+      let newRow = r;
+      while (newRow + 1 < R) {
+        const below = newRow + 1;
+        const belowObs = g.obstacles[below] && g.obstacles[below][c];
+        const belowHasGem = g.grid[below][c] !== -1;
+        if (!belowObs && !belowHasGem) {
+          newRow = below;
+        } else {
+          break;
+        }
+      }
+      if (newRow !== r) {
+        movedAny = true;
+        // Move data
+        g.obstacles[newRow][c] = g.obstacles[r][c];
+        g.obstacles[r][c] = null;
+        // Move DOM element
+        const _g2 = g.cellGap || 2;
+        const trophyEl = document.querySelector(`.obs-wrap[data-r="${r}"][data-c="${c}"]`);
+        if (trophyEl) {
+          trophyEl.dataset.r = newRow;
+          trophyEl.style.transition = 'top 0.30s cubic-bezier(.4,1.1,.5,1)';
+          trophyEl.style.top = (newRow * (cs + _g2)) + 'px';
+          setTimeout(() => { if (trophyEl) trophyEl.style.transition = ''; }, 340);
+        }
+      }
+      // If trophy reached the last playable row → collect it
+      if (newRow === R - 1 && canHoldGem(R - 1, c) === false) {
+        // Note: canHoldGem returns false because trophy is now occupying this cell.
+        // We need a different check: did it reach the actual bottom of its column?
+      }
+      // Collect when reaches last row (any last row, even if blocked further by board edge)
+      if (newRow === R - 1) {
+        const trophyEl = document.querySelector(`.obs-wrap[data-r="${newRow}"][data-c="${c}"]`);
+        // Mark as collected in data
+        g.obstacles[newRow][c] = null;
+        if (trophyEl) {
+          // Delay collect animation so the fall finishes first
+          setTimeout(() => {
+            trophyEl.classList.add('trophy-collected');
+            setTimeout(() => trophyEl.remove(), 500);
+          }, 340);
+        }
+        // Update objective
+        const obj = g.objectives.find(o2 => o2.type === OBJ.ESCORT_TROPHIES);
+        if (obj) {
+          obj.current = (obj.current || 0) + 1;
+          obj.current = Math.min(obj.current, obj.target);
+        }
+        audio.play && audio.play('coin');
+        setTimeout(() => audio.play && audio.play('star'), 150);
+        showHudMessage('🏆 TROPHY RESCUED!', 'success', 1500);
+        renderHudObjectives && renderHudObjectives();
+        // Flash the tray slot
+        const tray = document.querySelector(`.trophy-tray-slot[data-c="${c}"]`);
+        if (tray) {
+          tray.classList.add('flash');
+          setTimeout(() => tray.classList.remove('flash'), 600);
+        }
+      }
+    }
+  }
+  // Give the animation a moment to play before continuing
+  if (movedAny) await wait(180);
+  return movedAny;
+}
+
+/* =========================================================
    CASCADE: drop, refill, find new matches
    ========================================================= */
 async function resolveCascade() {
@@ -14862,64 +14998,6 @@ async function dropAndFill() {
   const R = g.rows, C = g.cols;
   const cs = g.cellSize;
 
-  // === TROPHY GRAVITY (escort objective) ===
-  // Trophies fall straight down through empty cells. When a trophy reaches
-  // the last "holdable" row, it gets collected (counts toward ESCORT_TROPHIES).
-  for (let c = 0; c < C; c++) {
-    // Find all trophy rows in this column, from bottom to top
-    for (let r = R - 1; r >= 0; r--) {
-      const o = g.obstacles[r] && g.obstacles[r][c];
-      if (!o || o.type !== OBS.TROPHY) continue;
-      // Try to move trophy down as far as possible (each empty cell below)
-      let newRow = r;
-      while (newRow + 1 < R) {
-        const below = newRow + 1;
-        const obs = g.obstacles[below] && g.obstacles[below][c];
-        const cellHasGem = g.grid[below][c] !== -1;
-        // Trophy can fall if cell below is empty (no obstacle, no gem)
-        if (!obs && !cellHasGem) {
-          newRow = below;
-        } else {
-          break;
-        }
-      }
-      if (newRow !== r) {
-        // Move trophy obstacle from r → newRow
-        g.obstacles[newRow][c] = g.obstacles[r][c];
-        g.obstacles[r][c] = null;
-        // Move DOM
-        const trophyEl = document.querySelector(`.obs-wrap[data-r="${r}"][data-c="${c}"]`);
-        if (trophyEl) {
-          trophyEl.dataset.r = newRow;
-          const _g2 = g.cellGap || 2;
-          trophyEl.style.transition = 'top 0.28s ease-in';
-          trophyEl.style.top = (newRow * (cs + _g2)) + 'px';
-          setTimeout(() => { if (trophyEl) trophyEl.style.transition = ''; }, 300);
-        }
-      }
-      // Check if trophy reached the last row → collect it!
-      if (newRow === R - 1) {
-        // Collect trophy
-        g.obstacles[newRow][c] = null;
-        const trophyEl = document.querySelector(`.obs-wrap[data-r="${newRow}"][data-c="${c}"]`);
-        if (trophyEl) {
-          trophyEl.classList.add('trophy-collected');
-          setTimeout(() => trophyEl.remove(), 500);
-        }
-        // Count toward objective
-        const obj = g.objectives.find(o2 => o2.type === OBJ.ESCORT_TROPHIES);
-        if (obj) {
-          obj.current = (obj.current || 0) + 1;
-          obj.current = Math.min(obj.current, obj.target);
-        }
-        audio.play && audio.play('coin');
-        audio.play && audio.play('star');
-        showHudMessage('🏆 TROPHY RESCUED!', 'success', 1500);
-        renderHudObjectives && renderHudObjectives();
-      }
-    }
-  }
-
   const R0 = g.rows, C0 = g.cols;
 
   // Build a gravity map per cell from def.gravityZones
@@ -14944,39 +15022,129 @@ async function dropAndFill() {
     const dominant = Object.keys(dirCounts).reduce((a, b) => dirCounts[a] >= dirCounts[b] ? a : b);
 
     if (dominant === 'down' || dominant === 'up') {
+      // Build list of "occupants" in this column from bottom to top.
+      // An occupant can be a gem (color index) or a trophy.
+      // Trophies are treated like heavy gems: they fall with gravity but
+      // can't be matched/swapped (handled elsewhere via isMovable/canMatch).
+
       const slots = [];
-      for (let r = 0; r < R; r++) if (canHoldGem(r, c)) slots.push(r);
+      for (let r = 0; r < R; r++) {
+        const o = g.obstacles[r] && g.obstacles[r][c];
+        const isTrophy = o && o.type === OBS.TROPHY;
+        if (canHoldGem(r, c) || isTrophy) slots.push(r);
+      }
       if (dominant === 'up') slots.reverse(); // up gravity: push to top
 
-      let writeIdx = slots.length - 1;
-      for (let i = slots.length - 1; i >= 0; i--) {
-        const r = slots[i];
-        if (g.grid[r][c] !== -1) {
-          const wr = slots[writeIdx];
-          if (wr !== r) {
-            g.grid[wr][c] = g.grid[r][c];
-            g.special[wr][c] = g.special[r][c];
-            g.grid[r][c] = -1;
-            g.special[r][c] = SPECIAL.NONE;
-            const gem = gemAt(r, c);
-            if (gem) moveGemTo(gem, wr, c);
-          }
-          writeIdx--;
+      // Pass 1: collect all occupants WITH their DOM refs captured upfront
+      // (this is critical: we must grab gem DOM refs BEFORE we start moving them
+      // around in the map, otherwise gemAt() returns stale/wrong gems).
+      const occupants = [];
+      for (const r of slots) {
+        const o = g.obstacles[r] && g.obstacles[r][c];
+        if (o && o.type === OBS.TROPHY) {
+          const trophyEl = document.querySelector(`.obs-wrap[data-r="${r}"][data-c="${c}"]`);
+          occupants.push({ type: 'trophy', fromRow: r, el: trophyEl });
+        } else if (g.grid[r][c] !== -1) {
+          occupants.push({
+            type: 'gem',
+            val: g.grid[r][c],
+            special: g.special[r][c],
+            fromRow: r,
+            el: gemAt(r, c) // capture DOM ref NOW
+          });
         }
       }
-      for (let i = writeIdx; i >= 0; i--) {
+
+      // Clear data AND unregister gems from map (we re-register after moving)
+      for (const r of slots) {
+        const o = g.obstacles[r] && g.obstacles[r][c];
+        if (o && o.type === OBS.TROPHY) {
+          g.obstacles[r][c] = null;
+        }
+        if (g.grid[r][c] !== -1) {
+          g.grid[r][c] = -1;
+          g.special[r][c] = SPECIAL.NONE;
+        }
+        // Unregister any gem at this position from the map
+        _gemUnregister(r, c);
+      }
+
+      // Write occupants at the END of slots (bottom for 'down' gravity)
+      const writeStart = slots.length - occupants.length;
+      for (let i = 0; i < occupants.length; i++) {
+        const targetRow = slots[writeStart + i];
+        const occ = occupants[i];
+        if (occ.type === 'trophy') {
+          g.obstacles[targetRow][c] = { type: OBS.TROPHY, hp: 1 };
+          if (occ.el) {
+            const _g2 = g.cellGap || 2;
+            occ.el.dataset.r = targetRow;
+            if (occ.fromRow !== targetRow) {
+              occ.el.style.transition = 'top 0.30s cubic-bezier(.4,1.1,.5,1)';
+              occ.el.style.top = (targetRow * (cs + _g2)) + 'px';
+              setTimeout(() => { if (occ.el) occ.el.style.transition = ''; }, 340);
+            }
+          }
+        } else {
+          // gem
+          g.grid[targetRow][c] = occ.val;
+          g.special[targetRow][c] = occ.special;
+          if (occ.el) {
+            // Update data attrs first to keep consistency
+            occ.el.dataset.r = targetRow;
+            occ.el.dataset.c = c;
+            // Update map: register this gem at its new position
+            _gemRegister(occ.el, targetRow, c);
+            // Animate move
+            if (occ.fromRow !== targetRow) {
+              const cs2 = g.cellSize, _g2 = g.cellGap || 2;
+              occ.el.style.left = (c * (cs2 + _g2)) + 'px';
+              occ.el.style.top  = (targetRow * (cs2 + _g2)) + 'px';
+            }
+          }
+        }
+      }
+
+      // Check if a trophy reached the last row -> collect it
+      const lastSlot = slots[slots.length - 1];
+      const lastObs = g.obstacles[lastSlot] && g.obstacles[lastSlot][c];
+      if (lastObs && lastObs.type === OBS.TROPHY && lastSlot === R - 1) {
+        const trophyEl = document.querySelector(`.obs-wrap[data-r="${lastSlot}"][data-c="${c}"]`);
+        g.obstacles[lastSlot][c] = null;
+        if (trophyEl) {
+          setTimeout(() => {
+            trophyEl.classList.add('trophy-collected');
+            setTimeout(() => trophyEl.remove(), 500);
+          }, 340);
+        }
+        const obj = g.objectives.find(o2 => o2.type === OBJ.ESCORT_TROPHIES);
+        if (obj) {
+          obj.current = (obj.current || 0) + 1;
+          obj.current = Math.min(obj.current, obj.target);
+        }
+        audio.play && audio.play('coin');
+        setTimeout(() => audio.play && audio.play('star'), 150);
+        showHudMessage('🏆 TROPHY RESCUED!', 'success', 1500);
+        renderHudObjectives && renderHudObjectives();
+        const tray = document.querySelector(`.trophy-tray-slot[data-c="${c}"]`);
+        if (tray) {
+          tray.classList.add('flash');
+          setTimeout(() => tray.classList.remove('flash'), 600);
+        }
+      }
+
+      // Spawn new gems at top empty slots
+      for (let i = 0; i < writeStart; i++) {
         const r = slots[i];
+        if (g.obstacles[r][c]) continue;
         const t = Math.floor(Math.random() * gemColors());
         g.grid[r][c] = t;
         g.special[r][c] = SPECIAL.NONE;
-        // 0.5% chance: turn this spawn into a LUCKY gem (bonus diamonds on match)
-        // Don't spawn lucky while board is being filled the very first time
-        // (only after first move) — heuristic: only if movesUsed > 0
         if ((g._movesUsed || 0) > 0 && Math.random() < 0.005) {
           g.special[r][c] = SPECIAL.LUCKY;
         }
         const gem = createGem(r, c, t, true);
-        const delay = (writeIdx - i) * 30;
+        const delay = (writeStart - 1 - i) * 30;
         requestAnimationFrame(() => {
           setTimeout(() => {
             const _g2 = state.game.cellGap || 2;
