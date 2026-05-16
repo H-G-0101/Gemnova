@@ -2900,12 +2900,31 @@ pulse targets */
     linear-gradient(45deg, transparent 47%, rgba(0,0,0,0.6) 49%, rgba(0,0,0,0.6) 51%, transparent 53%),
     linear-gradient(-30deg, transparent 47%, rgba(0,0,0,0.5) 49%, rgba(0,0,0,0.5) 51%, transparent 53%);
 }.obs-ice{
-  background: linear-gradient(180deg, rgba(180,230,255,0.8), rgba(120,200,250,0.6));
-  border: 2px solid rgba(255,255,255,0.7);
+  /* Translucent frosted-glass layer — lets the gem color show through */
+  background:
+    linear-gradient(135deg,
+      rgba(220,245,255,0.25) 0%,
+      rgba(150,210,250,0.18) 50%,
+      rgba(180,230,255,0.30) 100%);
+  border: 2px solid rgba(220,245,255,0.55);
   color: #fff;
   font-size: 18px;
-  box-shadow: inset 0 2px 4px rgba(255,255,255,0.6);
-  backdrop-filter: blur(2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.4),
+    inset 0 -1px 0 rgba(100,180,230,0.25);
+  /* Snowflake icon stays visible via text-shadow halo */
+  text-shadow: 0 0 4px rgba(255,255,255,0.85), 0 1px 2px rgba(80,140,200,0.5);
+  /* Glossy diagonal shine */
+  position: relative;
+  overflow: hidden;
+}
+.obs-ice::after{
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.25), transparent);
+  pointer-events: none;
 }.obs-ice.shatter{
   animation: shatter 0.25s ease-out forwards;
 }
@@ -3020,6 +3039,29 @@ pulse targets */
   0%   { transform: translateY(-30px) scale(0.8); opacity: 0; }
   60%  { transform: translateY(4px) scale(1.1); opacity: 1; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+/* === TROPHY (escort objective) === */
+.obs-trophy{
+  background:
+    radial-gradient(circle at 30% 30%, #fff5b4, transparent 60%),
+    linear-gradient(180deg, #ffd54a 0%, #f5a623 60%, #b8730e 100%);
+  border: 2px solid #8b5a0e;
+  color: #6e3a10;
+  font-size: 22px;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+  box-shadow:
+    inset 0 2px 4px rgba(255,255,255,0.45),
+    0 2px 6px rgba(0,0,0,0.4),
+    0 0 12px rgba(255,213,74,0.45);
+}
+.trophy-collected{
+  animation: trophyCollect 0.5s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes trophyCollect {
+  0%   { transform: scale(1) translateY(0); opacity: 1; }
+  50%  { transform: scale(1.4) translateY(-12px); opacity: 1; }
+  100% { transform: scale(0.5) translateY(40px); opacity: 0; }
 }/* === GRAVITY ZONE INDICATOR === */
 .gravity-zone{
   position: absolute;
@@ -4388,7 +4430,11 @@ shop pattern */
   background: rgba(251,191,36,0.06);
   border-color: rgba(251,191,36,0.22);
 }.ach-row.locked{
-  opacity: 0.45;
+  /* Don't use opacity (it dims everything including text).
+     Instead, lower the saturation by using softer backgrounds — text colors are
+     handled per element below so they stay legible. */
+  background: rgba(255,255,255,0.025);
+  border-color: rgba(255,255,255,0.06);
 }.ach-row.claimable{
   background: rgba(124,58,237,0.1);
   border-color: rgba(167,139,250,0.4);
@@ -4399,6 +4445,9 @@ shop pattern */
   display: flex; align-items: center; justify-content: center;
   font-size: 22px;
   flex-shrink: 0;
+}.ach-row.locked .ach-icon{
+  background: rgba(255,255,255,0.05);
+  opacity: 0.55;
 }.ach-row.unlocked .ach-icon{ background: rgba(251,191,36,0.12); }.ach-row.claimable .ach-icon{ background: rgba(124,58,237,0.18); }.ach-content{ flex: 1; min-width: 0; }.ach-name{
   font-family: var(--font-display);
   font-weight: 700;
@@ -4406,19 +4455,19 @@ shop pattern */
   color: #fff;
   margin-bottom: 2px;
   letter-spacing: 0.3px;
-}.ach-row.locked .ach-name{ color: rgba(255,255,255,0.5); }.ach-desc{
+}.ach-row.locked .ach-name{ color: rgba(255,255,255,0.85); }.ach-desc{
   font-size: 11px;
-  color: rgba(255,255,255,0.38);
+  color: rgba(255,255,255,0.6);
   font-weight: 500;
   margin-bottom: 5px;
-}/* Progress bar inside card */
-.ach-bar{ height: 3px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }.ach-bar-fill{ height: 100%; border-radius: 999px; transition: width 0.4s; background: linear-gradient(90deg, #7c3aed, #a78bfa); }.ach-row.unlocked .ach-bar-fill{ background: linear-gradient(90deg, #d97706, #fbbf24); }.ach-bar-label{ font-size: 10px; color: rgba(255,255,255,0.28); margin-top: 3px; font-weight: 500; }/* Right side */
+}.ach-row.locked .ach-desc{ color: rgba(255,255,255,0.55); }/* Progress bar inside card */
+.ach-bar{ height: 4px; border-radius: 999px; background: rgba(255,255,255,0.1); overflow: hidden; }.ach-bar-fill{ height: 100%; border-radius: 999px; transition: width 0.4s; background: linear-gradient(90deg, #7c3aed, #a78bfa); }.ach-row.unlocked .ach-bar-fill{ background: linear-gradient(90deg, #d97706, #fbbf24); }.ach-bar-label{ font-size: 10.5px; color: rgba(255,255,255,0.55); margin-top: 4px; font-weight: 600; }/* Right side */
 .ach-right{ flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }.ach-reward{
   display: flex; align-items: center; gap: 3px;
   font-family: var(--font-display); font-weight: 800; font-size: 11px;
-  color: rgba(255,255,255,0.5);
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 7px;
   padding: 3px 8px;
 }.ach-row.unlocked .ach-reward{ color: #fbbf24; border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); }.ach-check{
@@ -4746,7 +4795,48 @@ shop pattern */
     radial-gradient(ellipse at 20% 10%, rgba(0, 229, 255, 0.12) 0%, transparent 55%),
     radial-gradient(ellipse at 80% 90%, rgba(179, 77, 255, 0.10) 0%, transparent 55%),
     linear-gradient(180deg, #07092a 0%, #0d0d35 50%, #0a082a 100%);
-}/* Section divider with title */
+}/* Inline mechanic alert (shown in pre-level when new mechanic appears) */
+.pl-mech-alert{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 14px 4px;
+  padding: 10px 12px;
+  background: rgba(0,229,255,0.07);
+  border: 1px solid rgba(0,229,255,0.3);
+  border-radius: 10px;
+}
+.pl-mech-alert.boss{
+  background: rgba(255,82,82,0.07);
+  border-color: rgba(255,82,82,0.35);
+}
+.pl-mech-alert.relief{
+  background: rgba(108,212,77,0.07);
+  border-color: rgba(108,212,77,0.35);
+}
+.pl-mech-icon{
+  font-size: 22px;
+  width: 32px;
+  height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.pl-mech-body{ flex: 1; min-width: 0; }
+.pl-mech-title{
+  font-family: var(--font-display);
+  font-weight: 800; font-size: 11px;
+  letter-spacing: 1.5px;
+  color: rgba(0,229,255,0.95);
+  margin-bottom: 2px;
+}
+.pl-mech-alert.boss .pl-mech-title{ color: #ff8888; }
+.pl-mech-alert.relief .pl-mech-title{ color: #8ce074; }
+.pl-mech-desc{
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgba(255,255,255,0.75);
+}
+/* Section divider with title */
 .pl-section-header{
   display: flex; align-items: center; gap: 8px;
   margin: 10px 0 8px;
@@ -8141,6 +8231,15 @@ etc.) ────────────── */
       </div>
     </div>
 
+    <!-- Mechanic alert (inline — shown only when new mechanic) -->
+    <div id="pl-mechanic-alert" class="pl-mech-alert" style="display:none;">
+      <div class="pl-mech-icon" id="pl-mech-icon">⚠</div>
+      <div class="pl-mech-body">
+        <div class="pl-mech-title" id="pl-mech-title">NEW MECHANIC</div>
+        <div class="pl-mech-desc" id="pl-mech-desc"></div>
+      </div>
+    </div>
+
     <!-- Objectives -->
     <div class="pl-section-header">
       <span class="pl-section-line"></span>
@@ -8428,22 +8527,25 @@ etc.) ────────────── */
   <div class="panel rk-panel">
     <button class="close-x" onclick="closeModal('modal-ranking')">✕</button>
 
-    <!-- ── Hero header ────────────────────────────────────── -->
-    <div class="rk-hero">
-      <div class="rk-hero-glow"></div>
-      <div class="rk-hero-trophy">🏆</div>
-      <div class="rk-hero-title">GALACTIC RANKING</div>
-      <div class="rk-hero-sub" id="rk-hero-sub">All-time best players in the galaxy</div>
-      <div class="rk-hero-meta">
-        <span class="rk-hero-chip" id="rk-player-count">🌐 2,348 players</span>
-        <span class="rk-hero-chip" id="rk-timer-chip" style="display:none;">
-          <span id="rank-timer-label">⏱ Reset in:</span>
-          <strong id="rank-timer-value">00:00:00</strong>
-        </span>
+    <!-- Header (flat shop pattern) -->
+    <div class="shop-header" style="padding: 16px 16px 12px;">
+      <div class="shop-header-icon" style="background: linear-gradient(135deg, #b45309, #d97706);">🏆</div>
+      <div class="shop-header-text">
+        <div class="shop-header-title">RANKING</div>
+        <div class="shop-header-sub" id="rk-hero-sub">All-time best players</div>
       </div>
     </div>
 
-    <!-- ── Segmented tabs (neon pill style) ───────────────── -->
+    <!-- Stats strip -->
+    <div class="rk-stats-strip">
+      <div class="rk-stat-pill" id="rk-player-count">🌐 2,348 players</div>
+      <div class="rk-stat-pill" id="rk-timer-chip" style="display:none;">
+        <span id="rank-timer-label">⏱ Reset:</span>
+        <strong id="rank-timer-value">00:00:00</strong>
+      </div>
+    </div>
+
+    <!-- Tabs (flat) -->
     <div class="rk-tabs" id="ranking-tabs">
       <div class="rk-tab active" onclick="switchRankTab('global',this)">
         <span class="rk-tab-ico">🌐</span><span>Global</span>
@@ -8480,7 +8582,7 @@ etc.) ────────────── */
       <div id="rank-timer-wrap" style="display:none;"></div>
     </div>
 
-    <!-- ── My position footer with progress to next ──────── -->
+    <!-- My position footer with progress to next -->
     <div id="rank-my-pos" class="rk-my-card">
       <div class="rk-my-top">
         <div class="rk-my-avatar">👨‍🚀</div>
@@ -8509,405 +8611,374 @@ etc.) ────────────── */
    ════════════════════════════════════════════════════════════ */
 
 /* Panel: glass + soft outer glow */
+/* =========================================================
+   RANKING MODAL — flat style (consistent with shop pattern)
+   ========================================================= */
 .rk-panel{
   width: min(360px, 94vw);
   max-height: 92vh;
   padding: 0;
-  background:
-    radial-gradient(ellipse at 50% -10%, rgba(179,77,255,0.28), transparent 60%),
-    radial-gradient(ellipse at 50% 110%, rgba(0,229,255,0.18), transparent 55%),
-    linear-gradient(180deg, #150a3a 0%, #0a0626 100%);
+  background: linear-gradient(180deg, #1a1340 0%, #0d0828 100%);
   border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 22px;
-  box-shadow:
-    0 25px 60px rgba(0,0,0,0.7),
-    0 0 50px rgba(179,77,255,0.18),
-    inset 0 1px 0 rgba(255,255,255,0.06);
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.6);
   overflow: hidden;
   display: flex; flex-direction: column;
-}/* Close button: keep INSIDE the panel (panel has overflow:hidden) */
+}
 .rk-panel > .close-x{
   position: absolute;
-  top: 10px; right: 10px;
-  width: 30px; height: 30px;
+  top: 12px; right: 12px;
+  width: 28px; height: 28px;
   font-size: 14px;
   z-index: 30;
-  box-shadow:
-    0 2px 8px rgba(0,0,0,0.6),
-    0 0 0 1px rgba(0,0,0,0.3);
-}/* Hero header */
-.rk-hero{
-  position: relative;
-  padding: 18px 18px 14px;
-  text-align: center;
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(255,213,74,0.22), transparent 60%),
-    linear-gradient(180deg, rgba(255,213,74,0.06), rgba(255,213,74,0));
-  border-bottom: 1px solid rgba(255,213,74,0.18);
-  overflow: hidden;
-}.rk-hero-glow{
-  position: absolute; inset: -40% -10% auto -10%;
-  height: 80%;
-  background: radial-gradient(ellipse at 50% 100%,
-    rgba(255,213,74,0.35) 0%, transparent 65%);
-  pointer-events: none;
-  filter: blur(8px);
-}.rk-hero-trophy{
-  font-size: 38px;
-  filter: drop-shadow(0 0 14px rgba(255,213,74,0.7));
-  margin-bottom: 4px;
-  position: relative;
-  animation: rkTrophyFloat 3.5s ease-in-out infinite;
 }
-@keyframes rkTrophyFloat {
-  0%,100% { transform: translateY(0); }
-  50%     { transform: translateY(-3px); }
-}.rk-hero-title{
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 18px;
-  letter-spacing: 2.5px;
-  background: linear-gradient(180deg, #fff8d0 0%, #ffd54a 55%, #ff9020 100%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 10px rgba(255,213,74,0.4));
-  position: relative;
-}.rk-hero-sub{
-  font-size: 11px;
-  color: rgba(255,255,255,0.55);
-  margin-top: 3px;
-  font-family: var(--font-body);
-  position: relative;
-}.rk-hero-meta{
+
+/* Stats strip below header */
+.rk-stats-strip{
   display: flex; justify-content: center; gap: 6px;
-  margin-top: 10px;
+  padding: 0 14px 12px;
   flex-wrap: wrap;
-  position: relative;
-}.rk-hero-chip{
-  display: inline-flex; align-items: center; gap: 5px;
+}
+.rk-stat-pill{
+  display: inline-flex; align-items: center; gap: 4px;
   font-family: var(--font-display);
   font-size: 10.5px; font-weight: 700;
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(0,229,255,0.1);
-  border: 1px solid rgba(0,229,255,0.35);
-  color: #d4f7ff;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.75);
   white-space: nowrap;
-}.rk-hero-chip strong{ color: #fff; margin-left: 3px; }/* Tabs — segmented pill */
+}
+.rk-stat-pill strong{ color: #fff; margin-left: 3px; }
+
+/* Tabs — flat segmented */
 .rk-tabs{
   display: flex;
   gap: 4px;
-  margin: 12px 12px 0;
-  padding: 4px;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 14px;
-}.rk-tab{
+  margin: 0 12px 8px;
+  padding: 3px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+}
+.rk-tab{
   flex: 1;
   display: flex; align-items: center; justify-content: center; gap: 5px;
-  padding: 8px 6px;
-  border-radius: 10px;
+  padding: 7px 6px;
+  border-radius: 9px;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 12px;
+  font-size: 11.5px;
   color: rgba(255,255,255,0.55);
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: background 0.15s ease, color 0.15s ease;
   touch-action: manipulation;
   white-space: nowrap;
-}.rk-tab-ico{ font-size: 13px; }.rk-tab:active{ transform: scale(0.96); }.rk-tab:hover{ color: rgba(255,255,255,0.85); }.rk-tab.active{
-  background: linear-gradient(180deg,
-    rgba(0,229,255,0.22),
-    rgba(0,150,200,0.18));
-  border: 1px solid rgba(0,229,255,0.55);
+}
+.rk-tab-ico{ font-size: 12px; }
+.rk-tab:active{ transform: scale(0.97); }
+.rk-tab.active{
+  background: rgba(255,255,255,0.08);
   color: #fff;
-  box-shadow:
-    0 0 18px rgba(0,229,255,0.35),
-    inset 0 1px 0 rgba(255,255,255,0.15);
-  text-shadow: 0 0 6px rgba(0,229,255,0.5);
-}/* Scroll area */
+}
+
+/* Scroll area */
 .rk-scroll{
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 12px 12px 8px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0,229,255,0.4) transparent;
-}.rk-scroll::-webkit-scrollbar{ width: 5px; }.rk-scroll::-webkit-scrollbar-thumb{
-  background: rgba(0,229,255,0.35);
-  border-radius: 3px;
-}/* ─── Podium (top 3) ─── */
+  padding: 8px 12px;
+}
+.rk-scroll::-webkit-scrollbar{ width: 4px; }
+.rk-scroll::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+}
+
+/* Podium (top 3) — flat */
 .rk-podium{
   display: grid;
-  grid-template-columns: 1fr 1.2fr 1fr;
+  grid-template-columns: 1fr 1.15fr 1fr;
   gap: 6px;
   align-items: end;
-  margin-bottom: 4px;
-  padding: 6px 2px 12px;
-}.rk-pod{
+  margin: 4px 0 6px;
+  padding: 6px 2px 8px;
+}
+.rk-pod{
   position: relative;
   text-align: center;
-  padding: 22px 6px 10px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.03);
+  padding: 20px 6px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
-  animation: rkPodIn 0.5s ease-out both;
-}.rk-pod-1{ animation-delay: 0.15s; }.rk-pod-2{ animation-delay: 0.05s; }.rk-pod-3{ animation-delay: 0.25s; }
-@keyframes rkPodIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}.rk-pod.gold{
-  background: linear-gradient(180deg,
-    rgba(255,213,74,0.22),
-    rgba(255,140,0,0.08));
-  border: 1px solid rgba(255,213,74,0.6);
-  box-shadow:
-    0 0 22px rgba(255,213,74,0.25),
-    inset 0 1px 0 rgba(255,255,255,0.12);
-}.rk-pod.silver{
-  background: linear-gradient(180deg,
-    rgba(200,200,230,0.2),
-    rgba(140,140,180,0.07));
-  border: 1px solid rgba(200,200,230,0.5);
-  box-shadow:
-    0 0 14px rgba(200,200,230,0.2),
-    inset 0 1px 0 rgba(255,255,255,0.1);
-}.rk-pod.bronze{
-  background: linear-gradient(180deg,
-    rgba(220,140,70,0.2),
-    rgba(160,90,30,0.07));
-  border: 1px solid rgba(220,140,70,0.5);
-  box-shadow:
-    0 0 14px rgba(220,140,70,0.2),
-    inset 0 1px 0 rgba(255,255,255,0.1);
-}.rk-pod-medal{
+}
+.rk-pod.gold{
+  background: rgba(255,213,74,0.1);
+  border-color: rgba(255,213,74,0.4);
+}
+.rk-pod.silver{
+  background: rgba(200,200,230,0.08);
+  border-color: rgba(200,200,230,0.35);
+}
+.rk-pod.bronze{
+  background: rgba(220,140,70,0.08);
+  border-color: rgba(220,140,70,0.35);
+}
+.rk-pod-medal{
   position: absolute; top: -8px; left: 50%;
   transform: translateX(-50%);
-  font-size: 22px;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
-}.rk-pod.gold   .rk-pod-medal{ animation: rkMedalShine 2.5s ease-in-out infinite; }
-@keyframes rkMedalShine {
-  0%,100% { transform: translateX(-50%) scale(1); }
-  50%     { transform: translateX(-50%) scale(1.12); filter: drop-shadow(0 2px 8px rgba(255,213,74,0.9)); }
-}.rk-pod-avatar{
-  width: 46px; height: 46px;
+  font-size: 20px;
+}
+.rk-pod-avatar{
+  width: 42px; height: 42px;
   margin: 0 auto 6px;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  background: rgba(0,0,0,0.35);
+  border: 2px solid rgba(255,255,255,0.15);
+}
+.rk-pod.gold .rk-pod-avatar{
+  width: 50px; height: 50px;
   font-size: 26px;
-  background: rgba(0,0,0,0.4);
-  border: 2px solid rgba(255,255,255,0.2);
-}.rk-pod.gold   .rk-pod-avatar{
-  width: 54px; height: 54px;
-  font-size: 30px;
   border-color: #ffd54a;
-  box-shadow: 0 0 16px rgba(255,213,74,0.55);
-}.rk-pod.silver .rk-pod-avatar{ border-color: #c8c8e0; box-shadow: 0 0 10px rgba(200,200,230,0.4); }.rk-pod.bronze .rk-pod-avatar{ border-color: #d99060; box-shadow: 0 0 10px rgba(220,140,70,0.4); }.rk-pod-name{
+}
+.rk-pod.silver .rk-pod-avatar{ border-color: #c8c8e0; }
+.rk-pod.bronze .rk-pod-avatar{ border-color: #d99060; }
+.rk-pod-name{
   font-family: var(--font-display);
   font-size: 11px; font-weight: 800;
   color: #fff;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}.rk-pod-lvl{
+}
+.rk-pod-lvl{
   font-size: 9.5px;
   color: rgba(255,255,255,0.5);
   margin-top: 1px;
-}.rk-pod-pts{
+}
+.rk-pod-pts{
   margin-top: 6px;
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 12.5px;
-  color: #ffe88a;
-}.rk-pod.silver .rk-pod-pts{ color: #e8e8f8; }.rk-pod.bronze .rk-pod-pts{ color: #ffc890; }.rk-pod.me{ outline: 2px solid var(--c-neon-cyan); outline-offset: -2px; }/* ─── Section title ─── */
+  color: #ffd54a;
+}
+.rk-pod.silver .rk-pod-pts{ color: #e8e8f8; }
+.rk-pod.bronze .rk-pod-pts{ color: #ffc890; }
+.rk-pod.me{ outline: 2px solid var(--c-neon-cyan); outline-offset: -2px; }
+
+/* Section title */
 .rk-section-title{
   font-family: var(--font-display);
-  font-size: 11px; font-weight: 700;
-  color: rgba(255,255,255,0.45);
+  font-size: 10.5px; font-weight: 700;
+  color: rgba(255,255,255,0.4);
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  margin: 8px 4px 6px;
-}/* ─── Prize banner (collapsible) ─── */
+  margin: 10px 4px 6px;
+}
+
+/* Prize banner (collapsible) */
 .rk-prize-wrap{
   margin: 6px 0 8px;
   border-radius: 12px;
-  background: rgba(255,213,74,0.04);
-  border: 1px solid rgba(255,213,74,0.2);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
   overflow: hidden;
-}.rk-prize-toggle{
+}
+.rk-prize-toggle{
   padding: 9px 12px;
   display: flex; justify-content: space-between; align-items: center;
   cursor: pointer;
   font-family: var(--font-display);
   font-weight: 700; font-size: 12px;
-  color: #ffd54a;
+  color: rgba(255,213,74,0.85);
   user-select: none;
   touch-action: manipulation;
-}.rk-prize-arrow{
-  transition: transform 0.25s ease;
-  font-size: 14px;
-}.rk-prize-wrap.open .rk-prize-arrow{ transform: rotate(180deg); }.rk-prize-banner{
-  padding: 0 8px 8px;
-  animation: rkPrizeIn 0.25s ease-out;
 }
-@keyframes rkPrizeIn {
-  from { opacity: 0; max-height: 0; }
-  to   { opacity: 1; max-height: 800px; }
-}/* Rebrand the existing rpb-* (prize rows) into the new banner */
-.rpb-header{ display: none; }.rpb-row{
+.rk-prize-arrow{
+  transition: transform 0.2s ease;
+  font-size: 13px;
+}
+.rk-prize-wrap.open .rk-prize-arrow{ transform: rotate(180deg); }
+.rk-prize-banner{
+  padding: 0 8px 8px;
+}
+.rpb-header{ display: none; }
+.rpb-row{
   display: flex; align-items: center; gap: 8px;
   padding: 7px 10px;
   margin-top: 5px;
   border-radius: 10px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.06);
-}.rpb-row:last-child{ border-radius: 10px; }.rpb-gold{ background: linear-gradient(135deg, rgba(255,213,74,0.18), rgba(255,140,0,0.1)); border-color: rgba(255,213,74,0.45); }.rpb-silver{ background: linear-gradient(135deg, rgba(192,192,220,0.14), rgba(140,140,180,0.07)); border-color: rgba(192,192,220,0.35); }.rpb-bronze{ background: linear-gradient(135deg, rgba(205,127,50,0.14), rgba(160,90,30,0.07)); border-color: rgba(205,127,50,0.35); }.rpb-normal{ background: rgba(255,255,255,0.03); }.rpb-pos{
+}
+.rpb-gold{ background: rgba(255,213,74,0.08); border-color: rgba(255,213,74,0.3); }
+.rpb-silver{ background: rgba(192,192,220,0.06); border-color: rgba(192,192,220,0.25); }
+.rpb-bronze{ background: rgba(205,127,50,0.06); border-color: rgba(205,127,50,0.25); }
+.rpb-normal{ background: rgba(255,255,255,0.03); }
+.rpb-pos{
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 11px;
-  color: #ffd54a;
+  color: rgba(255,213,74,0.9);
   white-space: nowrap;
   min-width: 70px;
   flex-shrink: 0;
-}.rpb-gold .rpb-pos{ color: #ffd54a; }.rpb-silver .rpb-pos{ color: #c8c8e0; }.rpb-bronze .rpb-pos{ color: #cd9060; }.rpb-normal .rpb-pos{ color: rgba(255,255,255,0.7); }.rpb-chips{ display: flex; flex-wrap: wrap; gap: 4px; }.rpb-chip{
+}
+.rpb-gold .rpb-pos{ color: #ffd54a; }
+.rpb-silver .rpb-pos{ color: #c8c8e0; }
+.rpb-bronze .rpb-pos{ color: #cd9060; }
+.rpb-normal .rpb-pos{ color: rgba(255,255,255,0.6); }
+.rpb-chips{ display: flex; flex-wrap: wrap; gap: 4px; }
+.rpb-chip{
   font-size: 10.5px;
   font-family: var(--font-display);
   font-weight: 700;
   padding: 2px 7px;
   border-radius: 999px;
-  background: rgba(255,213,74,0.12);
-  border: 1px solid rgba(255,213,74,0.35);
+  background: rgba(255,213,74,0.1);
+  border: 1px solid rgba(255,213,74,0.3);
   color: #ffe88a;
   white-space: nowrap;
-}.rpb-normal .rpb-chip{
-  background: rgba(255,255,255,0.07);
-  border-color: rgba(255,255,255,0.18);
-  color: rgba(255,255,255,0.8);
-}/* ─── List items (4th onwards) ─── */
-.rank-list{ display: flex; flex-direction: column; gap: 6px; }.rank-item-new{
+}
+.rpb-normal .rpb-chip{
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.75);
+}
+
+/* List items (4th onwards) — flat */
+.rank-list{ display: flex; flex-direction: column; gap: 5px; }
+.rank-item-new{
   display: flex; align-items: center; gap: 10px;
   padding: 8px 12px;
-  border-radius: 12px;
+  border-radius: 10px;
   background: rgba(255,255,255,0.035);
   border: 1px solid rgba(255,255,255,0.06);
-  transition: all 0.18s ease;
-  animation: rkItemIn 0.35s ease-out both;
+  transition: background 0.15s ease;
 }
-@keyframes rkItemIn {
-  from { opacity: 0; transform: translateX(-6px); }
-  to   { opacity: 1; transform: translateX(0); }
-}.rank-item-new:nth-child(1){ animation-delay: 0.05s; }.rank-item-new:nth-child(2){ animation-delay: 0.10s; }.rank-item-new:nth-child(3){ animation-delay: 0.15s; }.rank-item-new:nth-child(4){ animation-delay: 0.20s; }.rank-item-new:nth-child(5){ animation-delay: 0.25s; }.rank-item-new:nth-child(n+6){ animation-delay: 0.30s; }.rank-item-new:hover{
-  background: rgba(255,255,255,0.06);
-  border-color: rgba(255,255,255,0.12);
-}.rank-item-new:active{ transform: scale(0.98); }.rank-item-new.me-row{
-  background: linear-gradient(135deg, rgba(0,229,255,0.16), rgba(0,150,200,0.08));
-  border-color: var(--c-neon-cyan);
-  box-shadow: 0 0 18px rgba(0,229,255,0.2);
-}/* Old top-3 row classes hidden since podium replaces them */
+.rank-item-new:hover{ background: rgba(255,255,255,0.06); }
+.rank-item-new:active{ transform: scale(0.99); }
+.rank-item-new.me-row{
+  background: rgba(0,229,255,0.08);
+  border-color: rgba(0,229,255,0.45);
+}
 .rank-item-new.gold-row,
 .rank-item-new.silver-row,
-.rank-item-new.bronze-row{ display: none; }.rank-medal{ font-size: 18px; width: 26px; text-align: center; flex-shrink: 0; }.rank-pos-num{
+.rank-item-new.bronze-row{ display: none; }
+.rank-medal{ font-size: 17px; width: 24px; text-align: center; flex-shrink: 0; }
+.rank-pos-num{
   font-family: var(--font-display);
   font-size: 13px; font-weight: 800;
   color: rgba(255,255,255,0.45);
   width: 22px; text-align: center; flex-shrink: 0;
-}.rank-avi-new{
-  width: 36px; height: 36px;
+}
+.rank-avi-new{
+  width: 34px; height: 34px;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 19px;
+  font-size: 18px;
   flex-shrink: 0;
-  border: 1.5px solid rgba(255,255,255,0.12);
-}.me-row .rank-avi-new{ border-color: var(--c-neon-cyan); }.rank-info{ flex: 1; min-width: 0; }.rank-name-new{
+  border: 1.5px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.25);
+}
+.me-row .rank-avi-new{ border-color: var(--c-neon-cyan); }
+.rank-info{ flex: 1; min-width: 0; }
+.rank-name-new{
   font-family: var(--font-display);
-  font-size: 13px; font-weight: 700;
+  font-size: 12.5px; font-weight: 700;
   color: #fff;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}.rank-sub{
+}
+.rank-sub{
   font-size: 10px;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.4);
   margin-top: 1px;
-}.rank-pts{
+}
+.rank-pts{
   font-family: var(--font-display);
   font-size: 13px; font-weight: 800;
-  color: var(--c-neon-yellow);
+  color: #ffd54a;
   text-align: right; flex-shrink: 0;
-}.me-row .rank-pts{ color: var(--c-neon-cyan); }.rank-prize-chip{
+}
+.me-row .rank-pts{ color: var(--c-neon-cyan); }
+.rank-prize-chip{
   display: inline-block;
   font-size: 9.5px;
   padding: 1px 6px;
   border-radius: 999px;
-  background: rgba(255,213,74,0.12);
-  border: 1px solid rgba(255,213,74,0.35);
+  background: rgba(255,213,74,0.1);
+  border: 1px solid rgba(255,213,74,0.3);
   color: #ffd54a;
   margin-top: 2px;
-}.rank-sep{
+}
+.rank-sep{
   text-align: center;
   color: rgba(255,255,255,0.2);
   font-size: 12px;
   padding: 4px 0;
   letter-spacing: 3px;
-}/* ─── My position footer ─── */
+}
+
+/* My position footer — flat */
 .rk-my-card{
   margin: 0 12px 12px;
   padding: 12px 14px;
-  background: linear-gradient(135deg,
-    rgba(0,229,255,0.14),
-    rgba(179,77,255,0.1));
-  border: 1px solid rgba(0,229,255,0.4);
-  border-radius: 14px;
-  box-shadow: 0 0 18px rgba(0,229,255,0.15);
-}.rk-my-top{
+  background: rgba(0,229,255,0.06);
+  border: 1px solid rgba(0,229,255,0.3);
+  border-radius: 12px;
+}
+.rk-my-top{
   display: flex; align-items: center; gap: 10px;
-}.rk-my-avatar{
-  width: 38px; height: 38px;
+}
+.rk-my-avatar{
+  width: 36px; height: 36px;
   border-radius: 50%;
-  background: rgba(0,229,255,0.18);
-  border: 2px solid var(--c-neon-cyan);
+  background: rgba(0,229,255,0.12);
+  border: 1.5px solid var(--c-neon-cyan);
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
+  font-size: 18px;
   flex-shrink: 0;
-  box-shadow: 0 0 12px rgba(0,229,255,0.4);
-}.rk-my-info{ flex: 1; min-width: 0; }.rk-my-name{
+}
+.rk-my-info{ flex: 1; min-width: 0; }
+.rk-my-name{
   font-family: var(--font-display);
   font-weight: 800; font-size: 13px;
   color: #fff;
-}.rk-my-meta{
+}
+.rk-my-meta{
   font-size: 11px;
   color: rgba(255,255,255,0.7);
   margin-top: 2px;
-}.rk-my-rank-val{ color: var(--c-neon-cyan); font-weight: 900; }.rk-my-pts-val{ color: var(--c-neon-yellow); font-weight: 700; }.rk-my-progress-wrap{ margin-top: 10px; }.rk-my-progress-info{
+}
+.rk-my-rank-val{ color: var(--c-neon-cyan); font-weight: 900; }
+.rk-my-pts-val{ color: #ffd54a; font-weight: 700; }
+.rk-my-progress-wrap{ margin-top: 10px; }
+.rk-my-progress-info{
   display: flex; justify-content: space-between;
   font-size: 10.5px;
   font-family: var(--font-display);
   font-weight: 700;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255,255,255,0.65);
   margin-bottom: 4px;
-}.rk-my-progress-need{ color: var(--c-neon-yellow); }.rk-my-progress-bar{
-  height: 7px;
-  background: rgba(0,0,0,0.4);
+}
+.rk-my-progress-need{ color: #ffd54a; }
+.rk-my-progress-bar{
+  height: 6px;
+  background: rgba(0,0,0,0.35);
   border-radius: 999px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.06);
-}.rk-my-progress-fill{
-  height: 100%;
-  background: linear-gradient(90deg, var(--c-neon-cyan), #b34dff);
-  border-radius: 999px;
-  box-shadow: 0 0 8px rgba(0,229,255,0.5);
-  transition: width 0.6s ease;
-  position: relative;
-}.rk-my-progress-fill::after{
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(255,255,255,0.35) 50%,
-    transparent 100%);
-  animation: rkProgressShine 2.2s ease-in-out infinite;
+  border: 1px solid rgba(255,255,255,0.05);
 }
-@keyframes rkProgressShine {
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}/* Top-1 my-position state: maxed out */
-.rk-my-card.maxed .rk-my-progress-fill{ background: linear-gradient(90deg, #ffd54a, #ff8800); }.rk-my-card.maxed .rk-my-progress-need{ color: #ffd54a; }
+.rk-my-progress-fill{
+  height: 100%;
+  background: var(--c-neon-cyan);
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+.rk-my-card.maxed .rk-my-progress-fill{ background: #ffd54a; }
+.rk-my-card.maxed .rk-my-progress-need{ color: #ffd54a; }
 </style>
 
 <!-- ============================================
@@ -10318,6 +10389,10 @@ const audio = (() => {
   // --- SFX library (one-shot) ---
   const sfx = {
     select: () => envTone({freq: 988, dur: 0.04, type:'sine', vol:0.10}),
+    tap:    () => {
+      // Soft UI tap — short, low volume, single sine click
+      envTone({freq: 1200, dur: 0.025, type:'sine', vol: 0.06, attack: 0.001, release: 0.03});
+    },
     swap:   () => {
       envTone({freq: 660, dur: 0.05, type:'triangle', vol:0.12});
       setTimeout(() => envTone({freq: 988, dur: 0.05, type:'triangle', vol:0.12}), 40);
@@ -10599,6 +10674,7 @@ const OBS = {
   SLIME: 6,       // expansive: spreads to adjacent every turn unless attacked
   TIME_BOMB: 7,   // timer counts down with each move; explodes -> game over
   TRASH: 8,       // garbage block dropped by combos; needs 1 hit to break
+  TROPHY: 9,      // movable trophy — falls with gravity, escort to bottom row
 };
 
 // Objective types
@@ -10611,6 +10687,7 @@ const OBJ = {
   BREAK_CHAIN: 'break_chain',
   CLEAR_SLIME: 'clear_slime',
   DEFUSE_BOMB: 'defuse_bomb',
+  ESCORT_TROPHIES: 'escort_trophies', // bring N trophies to the bottom row
 };
 
 // Level mode (movement vs time)
@@ -10666,6 +10743,7 @@ function makeLevel(lv) {
     timeBombs: false,
     weirdGravity: false,
     trashOnCombo: false,
+    trophyCount: 0,    // number of trophies to escort to the bottom row (0 = none)
   };
 
   // === DIFFICULTY BANDS — extended to 20 bands for full 9999-level scaling ===
@@ -10859,6 +10937,39 @@ function makeLevel(lv) {
   // === TRASH ON COMBO (band 4+, lv 80+) ===
   if (band >= 4 && lv >= 80 && !isRelief) {
     def.trashOnCombo = true;
+  }
+
+  // === TROPHY ESCORT (lv 12+, every 7 levels, excluding relief) ===
+  // Scaling: lv 12+ → 1 trophy, lv 200+ → 1-2 trophies, lv 1000+ → 1-3 trophies
+  if (lv >= 12 && !isRelief && (lv % 7 === 5)) {
+    let trophyCount = 1;
+    if (lv >= 1000) trophyCount = 1 + Math.floor(rng() * 3); // 1-3
+    else if (lv >= 200) trophyCount = 1 + Math.floor(rng() * 2); // 1-2
+    def.trophyCount = trophyCount;
+    // Spawn trophies in upper half of the board (rows 0 to rows/2)
+    const exclude = [...def.initialObstacles.map(o => `${o.r},${o.c}`), ...def.initialHoles.map(h => `${h.r},${h.c}`)];
+    let placed = 0;
+    let attempts = 0;
+    while (placed < trophyCount && attempts < 30) {
+      attempts++;
+      const r = Math.floor(rng() * Math.max(2, Math.floor(def.rows / 2)));
+      const c = Math.floor(rng() * def.cols);
+      const key = r + ',' + c;
+      if (exclude.includes(key)) continue;
+      def.initialObstacles.push({ r, c, type: OBS.TROPHY, hp: 1 });
+      exclude.push(key);
+      placed++;
+    }
+    if (placed > 0) {
+      def.trophyCount = placed; // adjust to actual placed
+      objList.push({ type: OBJ.ESCORT_TROPHIES, target: placed, current: 0 });
+      // Trophies need more moves to escort safely
+      if (def.mode === MODE.MOVES) {
+        def.moves = (def.moves || 0) + placed * 3;
+      } else if (def.mode === MODE.TIME) {
+        def.timeLimit = (def.timeLimit || 0) + placed * 10;
+      }
+    }
   }
 
   def.objectives = objList;
@@ -11340,6 +11451,7 @@ function refreshPauseUI() {
       else if (obj.type === OBJ.BREAK_CHAIN)  { icon = '⛓️'; label = 'Chains'; }
       else if (obj.type === OBJ.CLEAR_SLIME)  { icon = '☣️'; label = 'Slime'; }
       else if (obj.type === OBJ.DEFUSE_BOMB)  { icon = '💣'; label = 'Bombs'; }
+      else if (obj.type === OBJ.ESCORT_TROPHIES) { icon = '🏆'; label = 'Trophies'; }
       return `
         <div class="pause-obj ${ok ? 'done' : ''}">
           <span class="po-icon">${icon}</span>
@@ -12094,34 +12206,64 @@ function trackMission(kind, amount = 1) {
    ========================================================= */
 
 const ACHIEVEMENTS = [
-  // ── Early game (desbloqueiam nas primeiras sessões) ──
+  // ─── BEGINNER (early game, first session) ───
   { id: 'first_match',    cat: 'Beginner',  icon: '💎', name: 'First Spark',      desc: 'Make your first match',             reward: 10,  cond: () => (state.stats.totalMoves||0) >= 1 },
   { id: 'first_win',      cat: 'Beginner',  icon: '🎯', name: 'On the Board',     desc: 'Complete your first stage',         reward: 20,  cond: () => (state.stats.totalLevelsCompleted||0) >= 1 },
   { id: 'first_combo',    cat: 'Beginner',  icon: '⚡', name: 'Chain Reaction',   desc: 'Get your first combo',              reward: 15,  cond: () => (state.stats.totalCombos||0) >= 1 },
   { id: 'stage_3',        cat: 'Beginner',  icon: '🚀', name: 'Getting Started',  desc: 'Complete 3 stages',                 reward: 25,  cond: () => (state.stats.totalLevelsCompleted||0) >= 3 },
+
+  // ─── EXPLORER (early → late game, stage progression) ───
   { id: 'stage_10',       cat: 'Explorer',  icon: '🗺️', name: 'Explorer',         desc: 'Complete 10 stages',                reward: 40,  cond: () => (state.stats.totalLevelsCompleted||0) >= 10 },
   { id: 'stage_25',       cat: 'Explorer',  icon: '🌟', name: 'Rising Star',      desc: 'Complete 25 stages',                reward: 60,  cond: () => (state.stats.totalLevelsCompleted||0) >= 25 },
   { id: 'stage_50',       cat: 'Explorer',  icon: '🏅', name: 'Veteran',          desc: 'Complete 50 stages',                reward: 80,  cond: () => (state.stats.totalLevelsCompleted||0) >= 50 },
   { id: 'stage_100',      cat: 'Explorer',  icon: '🎖️', name: 'Commander',        desc: 'Complete 100 stages',               reward: 150, cond: () => (state.stats.totalLevelsCompleted||0) >= 100 },
-  // ── Combos ──
+  { id: 'stage_250',      cat: 'Explorer',  icon: '🛰️', name: 'Sector Master',    desc: 'Complete 250 stages',               reward: 150, cond: () => (state.stats.totalLevelsCompleted||0) >= 250 },
+  { id: 'stage_500',      cat: 'Explorer',  icon: '👨‍✈️', name: 'Galactic Captain', desc: 'Complete 500 stages',               reward: 250, cond: () => (state.stats.totalLevelsCompleted||0) >= 500 },
+  { id: 'stage_1000',     cat: 'Explorer',  icon: '⭐', name: 'Star Admiral',     desc: 'Complete 1,000 stages',             reward: 400, cond: () => (state.stats.totalLevelsCompleted||0) >= 1000 },
+  { id: 'stage_2500',     cat: 'Explorer',  icon: '🚀', name: 'Cosmic Voyager',   desc: 'Complete 2,500 stages',             reward: 700, cond: () => (state.stats.totalLevelsCompleted||0) >= 2500 },
+  { id: 'stage_5000',     cat: 'Explorer',  icon: '🌌', name: 'Universe Conqueror', desc: 'Complete 5,000 stages',           reward: 1200,cond: () => (state.stats.totalLevelsCompleted||0) >= 5000 },
+  { id: 'stage_9999',     cat: 'Explorer',  icon: '♾️', name: 'Beyond Infinity',  desc: 'Complete all 9,999 stages',         reward: 3000,cond: () => (state.stats.totalLevelsCompleted||0) >= 9999 },
+
+  // ─── COMBOS ───
   { id: 'combo_5',        cat: 'Combos',    icon: '⚡', name: 'Combo Starter',    desc: 'Make 5 combos total',               reward: 15,  cond: () => (state.stats.totalCombos||0) >= 5 },
   { id: 'combo_50',       cat: 'Combos',    icon: '🔥', name: 'Combo Master',     desc: 'Make 50 combos total',              reward: 50,  cond: () => (state.stats.totalCombos||0) >= 50 },
   { id: 'combo_200',      cat: 'Combos',    icon: '💥', name: 'Cosmic Legend',    desc: 'Make 200 combos total',             reward: 120, cond: () => (state.stats.totalCombos||0) >= 200 },
+  { id: 'combo_500',      cat: 'Combos',    icon: '☄️', name: 'Combo God',        desc: 'Make 500 combos total',             reward: 200, cond: () => (state.stats.totalCombos||0) >= 500 },
+  { id: 'combo_1000',     cat: 'Combos',    icon: '🌠', name: 'Combo Eternal',    desc: 'Make 1,000 combos total',           reward: 350, cond: () => (state.stats.totalCombos||0) >= 1000 },
   { id: 'big_combo',      cat: 'Combos',    icon: '🌊', name: 'Cascade King',     desc: 'Get a 5+ combo in one move',        reward: 40,  cond: () => (state.stats.bestCombo||0) >= 5 },
-  // ── Skill ──
+  { id: 'big_combo_8',    cat: 'Combos',    icon: '🌪️', name: 'The Cascade',      desc: 'Get an 8+ combo in one move',       reward: 100, cond: () => (state.stats.bestCombo||0) >= 8 },
+
+  // ─── SKILL (perfect runs, no-booster, stars) ───
   { id: 'no_booster_3',   cat: 'Skill',     icon: '💪', name: 'Pure Skill',       desc: 'Win 3 stages without boosters',     reward: 50,  cond: () => (state.stats.levelsWithoutBooster||0) >= 3 },
   { id: 'no_booster_10',  cat: 'Skill',     icon: '🧘', name: 'Minimalist',       desc: 'Win 10 stages without boosters',    reward: 100, cond: () => (state.stats.levelsWithoutBooster||0) >= 10 },
+  { id: 'no_booster_50',  cat: 'Skill',     icon: '🥷', name: 'No-Booster Run',   desc: 'Win 50 stages without boosters',    reward: 200, cond: () => (state.stats.levelsWithoutBooster||0) >= 50 },
   { id: 'perfect_1',      cat: 'Skill',     icon: '⭐', name: 'Shooting Star',    desc: 'Get 3 stars in a stage',            reward: 30,  cond: () => (state.stats.perfectLevels||0) >= 1 },
   { id: 'perfect_10',     cat: 'Skill',     icon: '🌠', name: 'Star Collector',   desc: 'Get 3 stars in 10 stages',          reward: 80,  cond: () => (state.stats.perfectLevels||0) >= 10 },
-  // ── Boss ──
+  { id: 'perfect_50',     cat: 'Skill',     icon: '💫', name: 'Perfectionist',    desc: 'Get 3 stars in 50 stages',          reward: 150, cond: () => (state.stats.perfectLevels||0) >= 50 },
+  { id: 'perfect_200',    cat: 'Skill',     icon: '✨', name: 'Star God',         desc: 'Get 3 stars in 200 stages',         reward: 400, cond: () => (state.stats.perfectLevels||0) >= 200 },
+
+  // ─── BOSS ───
   { id: 'first_boss',     cat: 'Boss',      icon: '⚠️', name: 'Boss Hunter',      desc: 'Defeat your first boss',            reward: 40,  cond: () => (state.stats.bossWins||0) >= 1 },
   { id: 'boss_3',         cat: 'Boss',      icon: '💀', name: 'Boss Slayer',      desc: 'Defeat 3 bosses',                   reward: 80,  cond: () => (state.stats.bossWins||0) >= 3 },
-  // ── Boosters ──
+  { id: 'boss_10',        cat: 'Boss',      icon: '☠️', name: 'Boss Crusher',     desc: 'Defeat 10 bosses',                  reward: 120, cond: () => (state.stats.bossWins||0) >= 10 },
+  { id: 'boss_50',        cat: 'Boss',      icon: '👹', name: 'Boss Annihilator', desc: 'Defeat 50 bosses',                  reward: 300, cond: () => (state.stats.bossWins||0) >= 50 },
+  { id: 'boss_200',       cat: 'Boss',      icon: '🐲', name: 'Boss Legend',      desc: 'Defeat 200 bosses',                 reward: 800, cond: () => (state.stats.bossWins||0) >= 200 },
+
+  // ─── BOOSTERS ───
   { id: 'booster_1',      cat: 'Boosters',  icon: '🔨', name: 'Tool Time',        desc: 'Use a booster for the first time',  reward: 20,  cond: () => (state.stats.boostersUsed||0) >= 1 },
   { id: 'booster_20',     cat: 'Boosters',  icon: '🎒', name: 'Power Player',     desc: 'Use 20 boosters total',             reward: 60,  cond: () => (state.stats.boostersUsed||0) >= 20 },
-  // ── Social/Daily ──
+
+  // ─── SPECIALS (new category) ───
+  { id: 'special_1',      cat: 'Specials',  icon: '✨', name: 'Special Spark',    desc: 'Create your first special gem',     reward: 15,  cond: () => (state.stats.specialsCreated||0) >= 1 },
+  { id: 'special_100',    cat: 'Specials',  icon: '💠', name: 'Specials Master',  desc: 'Create 100 special gems',           reward: 100, cond: () => (state.stats.specialsCreated||0) >= 100 },
+  { id: 'rainbow_25',     cat: 'Specials',  icon: '🌈', name: 'Rainbow Hunter',   desc: 'Create 25 rainbow gems',            reward: 150, cond: () => (state.stats.rainbowsCreated||0) >= 25 },
+
+  // ─── LOYALTY (login streak) ───
   { id: 'login_3',        cat: 'Loyalty',   icon: '📅', name: 'Regular',          desc: 'Log in 3 days in a row',            reward: 30,  cond: () => (state.loginStreak||0) >= 3 },
   { id: 'login_7',        cat: 'Loyalty',   icon: '🔑', name: 'Dedicated',        desc: 'Log in 7 days in a row',            reward: 80,  cond: () => (state.loginStreak||0) >= 7 },
+  { id: 'login_14',       cat: 'Loyalty',   icon: '🎖️', name: 'Committed',        desc: 'Log in 14 days in a row',           reward: 120, cond: () => (state.loginStreak||0) >= 14 },
+  { id: 'login_30',       cat: 'Loyalty',   icon: '👑', name: 'True Fan',         desc: 'Log in 30 days in a row',           reward: 250, cond: () => (state.loginStreak||0) >= 30 },
+  { id: 'login_100',      cat: 'Loyalty',   icon: '🏆', name: 'Lifetime',         desc: 'Log in 100 days in a row',          reward: 800, cond: () => (state.loginStreak||0) >= 100 },
 ];
 
 function checkAchievements() {
@@ -12263,15 +12405,19 @@ function openAchievementsModal() {
     let progress = 0, goal = 1;
     if (!unlocked) {
       // Compute partial progress for number-based achievements
-      const m = ach.desc.match(/(\d+)/);
+      // Match numbers including commas (e.g. "1,000", "9,999")
+      const m = ach.desc.match(/([\d,]+)/);
       if (m) {
-        goal = parseInt(m[1]);
+        goal = parseInt(m[1].replace(/,/g, ''));
         if      (ach.id.includes('stage') || ach.id.includes('level')) progress = state.stats.totalLevelsCompleted || 0;
-        else if (ach.id.includes('combo'))  progress = ach.id === 'big_combo' ? (state.stats.bestCombo||0) : (state.stats.totalCombos||0);
+        else if (ach.id.startsWith('big_combo')) progress = state.stats.bestCombo || 0;
+        else if (ach.id.includes('combo'))  progress = state.stats.totalCombos || 0;
         else if (ach.id.includes('boss'))   progress = state.stats.bossWins || 0;
         else if (ach.id.includes('booster_2')) progress = state.stats.boostersUsed || 0;
         else if (ach.id.includes('no_booster')) progress = state.stats.levelsWithoutBooster || 0;
         else if (ach.id.includes('perfect')) progress = state.stats.perfectLevels || 0;
+        else if (ach.id.includes('rainbow')) progress = state.stats.rainbowsCreated || 0;
+        else if (ach.id.includes('special')) progress = state.stats.specialsCreated || 0;
         else if (ach.id.includes('login'))  progress = state.loginStreak || 0;
         progress = Math.min(progress, goal);
       }
@@ -13105,41 +13251,20 @@ function startGame(lv) {
   audio.play('start');
   scheduleHint();
 
-  // === TUTORIAL POPUPS for new mechanics ===
-  state.seenTutorials = state.seenTutorials || {};
-  if (def.expansiveSlime && !state.seenTutorials.slime) {
-    setTimeout(() => showMechanicTutorial('slime'), 2400);
-    state.seenTutorials.slime = true;
-  } else if (def.timeBombs && !state.seenTutorials.bomb) {
-    setTimeout(() => showMechanicTutorial('bomb'), 2400);
-    state.seenTutorials.bomb = true;
-  } else if (def.trashOnCombo && !state.seenTutorials.trash) {
-    setTimeout(() => showMechanicTutorial('trash'), 2400);
-    state.seenTutorials.trash = true;
-  } else if (def.weirdGravity && !state.seenTutorials.gravity) {
-    setTimeout(() => showMechanicTutorial('gravity'), 2400);
-    state.seenTutorials.gravity = true;
-  } else if (def.isBoss && !state.seenTutorials.boss) {
-    setTimeout(() => showMechanicTutorial('boss'), 2400);
-    state.seenTutorials.boss = true;
-  } else if (def.mode === MODE.TIME && !state.seenTutorials.time) {
-    setTimeout(() => showMechanicTutorial('time'), 2400);
-    state.seenTutorials.time = true;
-  } else {
-    // No tutorial - just show HUD intro and start timer
-    setTimeout(() => {
-      if (def.isBoss) showHudMessage('⚠ BOSS DETECTED · BE CAREFUL', 'alert', 2400);
-      else if (def.isRelief) showHudMessage('✦ RELIEF SECTOR · RECHARGE', 'success', 2400);
-      else if (def.difficultyPhase === 3) showHudMessage('🔥 FASE 3 CRÍTICA — 30 SEGUNDOS!', 'alert', 2800);
-      else if (def.difficultyPhase === 2) showHudMessage('⚡ FASE 2 URGENTE — 45 SEGUNDOS!', 'alert', 2600);
-      else if (def.difficultyPhase === 1) showHudMessage('⏱ FASE 1 — CRONÔMETRO ATIVADO', 'alert', 2400);
-      else if (def.isTimedMode) showHudMessage('⏱ TIMER MODE ACTIVE', 'alert', 2400);
-      else showHudMessage('NORMAL PROPULSION · MISSION STARTED', 'success', 2000);
-    }, 1800);
+  // === HUD intro messages and timed-mode start ===
+  // (Mechanic tutorials are now shown inline in the pre-level modal, not as a separate popup.)
+  setTimeout(() => {
+    if (def.isBoss) showHudMessage('⚠ BOSS DETECTED · BE CAREFUL', 'alert', 2400);
+    else if (def.isRelief) showHudMessage('✦ RELIEF SECTOR · RECHARGE', 'success', 2400);
+    else if (def.difficultyPhase === 3) showHudMessage('🔥 PHASE 3 CRITICAL — 30 SECONDS!', 'alert', 2800);
+    else if (def.difficultyPhase === 2) showHudMessage('⚡ PHASE 2 URGENT — 45 SECONDS!', 'alert', 2600);
+    else if (def.difficultyPhase === 1) showHudMessage('⏱ PHASE 1 — TIMER ACTIVATED', 'alert', 2400);
+    else if (def.isTimedMode) showHudMessage('⏱ TIMER MODE ACTIVE', 'alert', 2400);
+    else showHudMessage('NORMAL PROPULSION · MISSION STARTED', 'success', 2000);
+  }, 1800);
 
-    if (def.mode === MODE.TIME) {
-      setTimeout(() => startTimerMode(), 2200);
-    }
+  if (def.mode === MODE.TIME) {
+    setTimeout(() => startTimerMode(), 2200);
   }
   autoSave();
 }
@@ -13228,6 +13353,55 @@ function showPreLevelModal(lv) {
   const m = document.getElementById('modal-prelevel');
   if (!m) return;
   const def = state.game.def;
+
+  // ── Mechanic alert (inline) ─────────────────────────────
+  // Shows a single card if the level introduces a mechanic the player hasn't seen.
+  // Replaces the old separate "modal-tutorial" overlay-on-top-of-prelevel pattern.
+  state.seenTutorials = state.seenTutorials || {};
+  const alertEl = document.getElementById('pl-mechanic-alert');
+  const alertIcon = document.getElementById('pl-mech-icon');
+  const alertTitle = document.getElementById('pl-mech-title');
+  const alertDesc = document.getElementById('pl-mech-desc');
+  if (alertEl) {
+    alertEl.classList.remove('boss','relief');
+    let pickedAlert = null;
+    if (def.expansiveSlime && !state.seenTutorials.slime) {
+      pickedAlert = { kind:'slime', icon:'☣', title:'COSMIC SLIME', desc:'Expansive obstacle! Attack adjacent gems each turn or it spreads. If it covers 70% of the board = game over.' };
+      state.seenTutorials.slime = true;
+    } else if (def.timeBombs && !state.seenTutorials.bomb) {
+      pickedAlert = { kind:'bomb', icon:'💣', title:'TIME BOMB', desc:'6-move countdown! Make adjacent matches to defuse it before it explodes.' };
+      state.seenTutorials.bomb = true;
+    } else if (def.trashOnCombo && !state.seenTutorials.trash) {
+      pickedAlert = { kind:'trash', icon:'⬛', title:'TRASH BLOCKS', desc:'Large combos (x3+) drop trash on your board. Risk/reward: more score, messier board.' };
+      state.seenTutorials.trash = true;
+    } else if (def.weirdGravity && !state.seenTutorials.gravity) {
+      pickedAlert = { kind:'gravity', icon:'↑', title:'ALTERED GRAVITY', desc:'Some cells fall in reversed direction. Arrows indicate the fall direction in those zones.' };
+      state.seenTutorials.gravity = true;
+    } else if (def.isBoss && !state.seenTutorials.boss) {
+      pickedAlert = { kind:'boss', icon:'⚠', title:'BOSS SECTOR', desc:'Harder stage! Fewer moves, bigger targets, cruel layout. But the reward is also bigger.' };
+      state.seenTutorials.boss = true;
+    } else if (def.isRelief && !state.seenTutorials.relief) {
+      pickedAlert = { kind:'relief', icon:'✦', title:'RELIEF SECTOR', desc:'Easier stage! Recharge your boosters and take a breath before the next challenge.' };
+      state.seenTutorials.relief = true;
+    } else if (def.trophyCount > 0 && !state.seenTutorials.trophy) {
+      pickedAlert = { kind:'trophy', icon:'🏆', title:'TROPHY ESCORT', desc:'Bring all trophies to the bottom row! They fall with gravity. Clear matches below them to make them drop.' };
+      state.seenTutorials.trophy = true;
+    } else if (def.mode === MODE.TIME && !state.seenTutorials.time) {
+      pickedAlert = { kind:'time', icon:'⏱', title:'TIMED SECTOR', desc:'You have limited time instead of moves. Score fast!' };
+      state.seenTutorials.time = true;
+    }
+
+    if (pickedAlert) {
+      alertEl.style.display = 'flex';
+      if (pickedAlert.kind === 'boss') alertEl.classList.add('boss');
+      else if (pickedAlert.kind === 'relief') alertEl.classList.add('relief');
+      if (alertIcon) alertIcon.textContent = pickedAlert.icon;
+      if (alertTitle) alertTitle.textContent = pickedAlert.title;
+      if (alertDesc) alertDesc.textContent = pickedAlert.desc;
+    } else {
+      alertEl.style.display = 'none';
+    }
+  }
 
   // ── Mission badge (kind + icon) ────────────────────────
   const badge = document.getElementById('pl-mission-badge');
@@ -13405,20 +13579,22 @@ function renderObjective(obj, large = false) {
   if (obj.type === OBJ.SCORE)
     return `<div class="pl-icon" style="font-size:${sz}px">🎯</div><div>Score: <b>${obj.target}</b></div>`;
   if (obj.type === OBJ.COLLECT_COLOR) {
-    return `<div class="pl-icon" style="width:${sz}px;height:${sz}px;">${gemSVG(obj.gemType)}</div><div>Colete <b>${obj.current}/${obj.target}</b></div>`;
+    return `<div class="pl-icon" style="width:${sz}px;height:${sz}px;">${gemSVG(obj.gemType)}</div><div>Collect <b>${obj.current}/${obj.target}</b></div>`;
   }
   if (obj.type === OBJ.BREAK_STONES)
-    return `<div class="pl-icon" style="font-size:${sz}px">🪨</div><div>Pedras <b>${obj.current}/${obj.target}</b></div>`;
+    return `<div class="pl-icon" style="font-size:${sz}px">🪨</div><div>Stones <b>${obj.current}/${obj.target}</b></div>`;
   if (obj.type === OBJ.CLEAR_ICE)
-    return `<div class="pl-icon" style="font-size:${sz}px">❄️</div><div>Gelo <b>${obj.current}/${obj.target}</b></div>`;
+    return `<div class="pl-icon" style="font-size:${sz}px">❄️</div><div>Ice <b>${obj.current}/${obj.target}</b></div>`;
   if (obj.type === OBJ.BREAK_WOOD)
-    return `<div class="pl-icon" style="font-size:${sz}px">🪵</div><div>Madeira <b>${obj.current}/${obj.target}</b></div>`;
+    return `<div class="pl-icon" style="font-size:${sz}px">🪵</div><div>Wood <b>${obj.current}/${obj.target}</b></div>`;
   if (obj.type === OBJ.BREAK_CHAIN)
-    return `<div class="pl-icon" style="font-size:${sz}px">⛓️</div><div>Correntes <b>${obj.current}/${obj.target}</b></div>`;
+    return `<div class="pl-icon" style="font-size:${sz}px">⛓️</div><div>Chains <b>${obj.current}/${obj.target}</b></div>`;
   if (obj.type === OBJ.CLEAR_SLIME)
-    return `<div class="pl-icon" style="font-size:${sz}px">☣️</div><div>Limo Cósmico <b>${obj.current}/${obj.target}</b></div>`;
+    return `<div class="pl-icon" style="font-size:${sz}px">☣️</div><div>Cosmic Slime <b>${obj.current}/${obj.target}</b></div>`;
   if (obj.type === OBJ.DEFUSE_BOMB)
-    return `<div class="pl-icon" style="font-size:${sz}px">💣</div><div>Bombas <b>${obj.current}/${obj.target}</b></div>`;
+    return `<div class="pl-icon" style="font-size:${sz}px">💣</div><div>Bombs <b>${obj.current}/${obj.target}</b></div>`;
+  if (obj.type === OBJ.ESCORT_TROPHIES)
+    return `<div class="pl-icon" style="font-size:${sz}px">🏆</div><div>Escort trophies <b>${obj.current}/${obj.target}</b></div>`;
   return '';
 }
 
@@ -13554,10 +13730,11 @@ function renderHudObjectives() {
       [OBJ.BREAK_CHAIN]:'⛓️',
       [OBJ.CLEAR_SLIME]:'☣️',
       [OBJ.DEFUSE_BOMB]:'💣',
+      [OBJ.ESCORT_TROPHIES]:'🏆',
     }[o.type] || '';
     return `<span class="hud-obj">${ic} ${remaining}</span>`;
   });
-  return `<span class="game-target-label">OBJETIVO</span>` + parts.join('');
+  return `<span class="game-target-label">OBJECTIVE</span>` + parts.join('');
 }
 
 function fillTipsBoard() {
@@ -13585,7 +13762,7 @@ function canHoldGem(r, c) {
   if (!inBounds(r, c)) return false;
   const o = state.game.obstacles[r][c];
   if (o && (o.type === OBS.HOLE || o.type === OBS.STONE || o.type === OBS.SLIME ||
-            o.type === OBS.TRASH || o.type === OBS.TIME_BOMB)) return false;
+            o.type === OBS.TRASH || o.type === OBS.TIME_BOMB || o.type === OBS.TROPHY)) return false;
   return true;
 }
 /* Gem on (r,c) is currently movable (not chained, not in stone/hole) */
@@ -13595,6 +13772,13 @@ function isMovable(r, c) {
   if (!o) return true;
   if (o.type === OBS.CHAIN) return false; // chained gems can be matched but not swapped
   return true; // ice, wood, and other lighter overlays still allow swap
+}
+/* Check if a cell has a trophy (escort objective). Trophies are movable
+   obstacles that fall with gravity but can't be matched or swapped. */
+function isTrophy(r, c) {
+  if (!inBounds(r, c)) return false;
+  const o = state.game.obstacles[r][c];
+  return !!(o && o.type === OBS.TROPHY);
 }
 /* Gem on (r,c) can participate in matches */
 function canMatch(r, c) {
@@ -13796,6 +13980,8 @@ function renderObstacle(r, c) {
             </div>`;
   } else if (o.type === OBS.TRASH) {
     html = `<div class="obs obs-trash">▦</div>`;
+  } else if (o.type === OBS.TROPHY) {
+    html = `<div class="obs obs-trophy">🏆</div>`;
   }
   const wrap = document.createElement('div');
   wrap.className = 'obs-wrap';
@@ -14486,6 +14672,13 @@ async function processMatches(groups, swap = null) {
     }
     showHudMessage('RARE GEM DETECTED', 'success', 1600);
     trackMission('specials', createSpecials.length);
+    // Track special gems created for achievements
+    state.stats.specialsCreated = (state.stats.specialsCreated || 0) + createSpecials.length;
+    // Count rainbows (RAINBOW + MEGA_RAINBOW) separately
+    const rainbowCount = createSpecials.filter(s => s.sp === SPECIAL.RAINBOW || s.sp === SPECIAL.MEGA_RAINBOW).length;
+    if (rainbowCount > 0) {
+      state.stats.rainbowsCreated = (state.stats.rainbowsCreated || 0) + rainbowCount;
+    }
   }
   for (const sp of createSpecials) {
     g.grid[sp.r][sp.c] = sp.type;
@@ -14668,6 +14861,66 @@ async function dropAndFill() {
   const g = state.game;
   const R = g.rows, C = g.cols;
   const cs = g.cellSize;
+
+  // === TROPHY GRAVITY (escort objective) ===
+  // Trophies fall straight down through empty cells. When a trophy reaches
+  // the last "holdable" row, it gets collected (counts toward ESCORT_TROPHIES).
+  for (let c = 0; c < C; c++) {
+    // Find all trophy rows in this column, from bottom to top
+    for (let r = R - 1; r >= 0; r--) {
+      const o = g.obstacles[r] && g.obstacles[r][c];
+      if (!o || o.type !== OBS.TROPHY) continue;
+      // Try to move trophy down as far as possible (each empty cell below)
+      let newRow = r;
+      while (newRow + 1 < R) {
+        const below = newRow + 1;
+        const obs = g.obstacles[below] && g.obstacles[below][c];
+        const cellHasGem = g.grid[below][c] !== -1;
+        // Trophy can fall if cell below is empty (no obstacle, no gem)
+        if (!obs && !cellHasGem) {
+          newRow = below;
+        } else {
+          break;
+        }
+      }
+      if (newRow !== r) {
+        // Move trophy obstacle from r → newRow
+        g.obstacles[newRow][c] = g.obstacles[r][c];
+        g.obstacles[r][c] = null;
+        // Move DOM
+        const trophyEl = document.querySelector(`.obs-wrap[data-r="${r}"][data-c="${c}"]`);
+        if (trophyEl) {
+          trophyEl.dataset.r = newRow;
+          const _g2 = g.cellGap || 2;
+          trophyEl.style.transition = 'top 0.28s ease-in';
+          trophyEl.style.top = (newRow * (cs + _g2)) + 'px';
+          setTimeout(() => { if (trophyEl) trophyEl.style.transition = ''; }, 300);
+        }
+      }
+      // Check if trophy reached the last row → collect it!
+      if (newRow === R - 1) {
+        // Collect trophy
+        g.obstacles[newRow][c] = null;
+        const trophyEl = document.querySelector(`.obs-wrap[data-r="${newRow}"][data-c="${c}"]`);
+        if (trophyEl) {
+          trophyEl.classList.add('trophy-collected');
+          setTimeout(() => trophyEl.remove(), 500);
+        }
+        // Count toward objective
+        const obj = g.objectives.find(o2 => o2.type === OBJ.ESCORT_TROPHIES);
+        if (obj) {
+          obj.current = (obj.current || 0) + 1;
+          obj.current = Math.min(obj.current, obj.target);
+        }
+        audio.play && audio.play('coin');
+        audio.play && audio.play('star');
+        showHudMessage('🏆 TROPHY RESCUED!', 'success', 1500);
+        renderHudObjectives && renderHudObjectives();
+      }
+    }
+  }
+
+  const R0 = g.rows, C0 = g.cols;
 
   // Build a gravity map per cell from def.gravityZones
   // Default gravity is 'down' for all cells
@@ -15488,6 +15741,7 @@ function showOutOfMovesModal() {
     else if (obj.type === OBJ.BREAK_CHAIN) icon = '⛓️';
     else if (obj.type === OBJ.CLEAR_SLIME) icon = '☣️';
     else if (obj.type === OBJ.DEFUSE_BOMB) icon = '💣';
+    else if (obj.type === OBJ.ESCORT_TROPHIES) icon = '🏆';
     div.innerHTML = `
       <div class="cobj-icon">${icon}</div>
       <div class="cobj-progress">${obj.current}/${obj.target}</div>
@@ -16801,6 +17055,23 @@ function init() {
   lifeSystemTick();
   // Capture Android back button to open pause
   setupAndroidBackButton();
+
+  // ── UI tap sound: soft click on any tappable element ──
+  // Uses pointerdown for instant feedback. Skips gems (they have their own SFX).
+  document.addEventListener('pointerdown', (e) => {
+    const t = e.target;
+    if (!t || !t.closest) return;
+    // Skip game-board gems (their own SFX handles taps)
+    if (t.closest('.gem') || t.closest('#board') || t.closest('.board-grid')) return;
+    // Only play for tappable UI elements
+    const tappable = t.closest(
+      'button, .btn, [onclick], .side-icon, .dock-btn, .rk-tab, .mc-tab, ' +
+      '.shop-booster-row, .shop-diamond-card, .continue-opt-card, .pl-start, ' +
+      '.gifts-day, .ach-claim-btn, .level-node, .pause-opt, .settings-toggle, ' +
+      '.shop-pi-card, .rk-prize-toggle, .pl-preview-toggle'
+    );
+    if (tappable) audio.play('tap');
+  }, { passive: true });
 
   // Auto-skip splash if returning player (level > 1 means they progressed)
   if (state.level > 1 || state.stars > 0 || state.coins > 30) {
