@@ -712,7 +712,7 @@ fills the whole screen */
      contain isolates layout/paint so changes inside don't reflow the page.
      will-change: scroll-position promotes this to its own compositor layer
      so the GPU can scroll without involving the main thread. */
-  contain: layout paint style;
+  contain: paint style;
   will-change: scroll-position;
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
@@ -739,7 +739,8 @@ pause all decorative animations.
 .home-scroll.scrolling .map-galaxy,
 .home-scroll.scrolling .map-blackhole{
   animation-play-state: paused !important;
-}/* The big scrollable map canvas - galactic route (CSS-only,
+}
+/* The big scrollable map canvas - galactic route (CSS-only,
 no images) */
 .home-map{
   position: relative;
@@ -762,7 +763,7 @@ no images) */
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-attachment: scroll;
-  overflow: hidden;
+  /* overflow:hidden removed — it forced a stacking context blocking GPU scroll */
 }/* Layer B — second star field that twinkles OUT OF PHASE with ::after.
    While the main layer fades,
 this one brightens,
@@ -808,6 +809,8 @@ some off" sky shimmer. */
   background-repeat: repeat;
   opacity: 0.85;
   animation: starTwinkleB 4.5s ease-in-out infinite;
+  will-change: opacity;
+  transform: translateZ(0);
 }
 @keyframes starTwinkleB {
   /* Anti-phase to starTwinkle: bright when the other fades */
@@ -854,6 +857,8 @@ some off" sky shimmer. */
   background-repeat: repeat;
   opacity: 1;
   animation: starTwinkle 4.5s ease-in-out infinite;
+  will-change: opacity;
+  transform: translateZ(0);
 }
 @keyframes starTwinkle {
   /* Bright → almost off → bright; out of phase with starTwinkleB */
@@ -1197,6 +1202,7 @@ galaxies) populated procedurally */
   z-index: 5;
   transition: transform 0.12s ease;
   touch-action: manipulation;
+  will-change: transform;
 }.level-node:active{
   transform: translate(-50%, -50%) scale(0.91) translateY(3px);
 }/*
@@ -1228,19 +1234,14 @@ gives depth)
     /* top edge glint */
     inset 0 2px 3px rgba(255,255,255,0.55),
     inset 0 -2px 4px rgba(0,0,0,0.35);
-}/* golden ring around the face (border simulation) */
+}/* ring removed for cleaner look */
 .level-node .lv-hex::before{
   content: '';
-  position: absolute; inset: -4px;
+  position: absolute; inset: 0;
   border-radius: 50%;
-  /* locked ring: dark steel */
-  background: conic-gradient(
-    #5a6080 0deg, #8a90a8 60deg, #5a6080 120deg,
-    #3a3f52 180deg, #5a6080 240deg, #8a90a8 300deg, #5a6080 360deg);
+  background: transparent;
   z-index: -1;
-  box-shadow:
-    0 7px 0 0 #282c3c,
-    0 8px 0 0 #141622;
+  box-shadow: none;
 }/* specular highlight on the face */
 .level-node .lv-hex::after{
   content: '';
@@ -1258,6 +1259,7 @@ gives depth)
    (no full ring around the coin face)
    Applied to ALL states.
    ══════════════════════════════════════ */
+/* ::before ring cleared for all states */
 .level-node .lv-hex::before,
 .level-node.locked .lv-hex::before,
 .level-node.passed .lv-hex::before,
@@ -1267,15 +1269,7 @@ gives depth)
 .level-node.boss-level.passed .lv-hex::before,
 .level-node.relief-level .lv-hex::before{
   background: transparent !important;
-  box-shadow:
-    0 4px 0 0 #c98a3a,
-    0 6px 0 0 #8a5a1a !important;
-}/* Current is bigger — deeper base */
-.level-node.current .lv-hex::before,
-.level-node.boss-level.current .lv-hex::before{
-  box-shadow:
-    0 5px 0 0 #c98a3a,
-    0 7px 0 0 #8a5a1a !important;
+  box-shadow: none !important;
 }/* ══════════════════════════════════════
    GOLD FACE-BASE — replace the dark-grey
    bottom shadow on the face itself with
@@ -1338,12 +1332,8 @@ for every state. Keeps the
     inset 0 2px 3px rgba(210,250,255,0.75),
     inset 0 -2px 4px rgba(0,0,0,0.4);
 }.level-node.passed .lv-hex::before{
-  background: conic-gradient(
-    #c87820 0deg, #f0b840 60deg, #c87820 120deg,
-    #7a4410 180deg, #c87820 240deg, #f0b840 300deg, #c87820 360deg);
-  box-shadow:
-    0 7px 0 0 #5a2e08,
-    0 8px 0 0 #2a1404;
+  background: transparent;
+  box-shadow: none;
 }/* ══════════════════════════════════════
    CURRENT — gold coin,
 bigger,
@@ -1387,12 +1377,8 @@ pulsing glow
       inset 0 -2px 5px rgba(0,0,0,0.4);
   }
 }.level-node.current .lv-hex::before{
-  background: conic-gradient(
-    #e8a000 0deg, #ffe840 60deg, #e8a000 120deg,
-    #9a5e00 180deg, #e8a000 240deg, #ffe840 300deg, #e8a000 360deg);
-  box-shadow:
-    0 9px 0 0 #6a3a00,
-    0 10px 0 0 #2a1600;
+  background: transparent;
+  box-shadow: none;
 }.level-node.current .lv-label{
   font-size: 15px;
   color: #fff;
@@ -1427,12 +1413,8 @@ desaturated coin
     inset 0 -2px 4px rgba(0,0,0,0.35);
   opacity: 1;
 }.level-node.locked .lv-hex::before{
-  background: conic-gradient(
-    #6a7080 0deg, #9aa0b0 60deg, #6a7080 120deg,
-    #3a3e48 180deg, #6a7080 240deg, #9aa0b0 300deg, #6a7080 360deg);
-  box-shadow:
-    0 7px 0 0 #2a2c34,
-    0 8px 0 0 #14161c;
+  background: transparent;
+  box-shadow: none;
 }.level-node.locked .lv-label{
   color: #f0f3f8;
   text-shadow: 0 1px 2px rgba(0,0,0,0.7);
@@ -1451,12 +1433,8 @@ desaturated coin
     inset 0 -2px 4px rgba(0,0,0,0.35);
   opacity: 1;
 }.level-node.boss-level.locked .lv-hex::before{
-  background: conic-gradient(
-    #6a7080 0deg, #9aa0b0 60deg, #6a7080 120deg,
-    #3a3e48 180deg, #6a7080 240deg, #9aa0b0 300deg, #6a7080 360deg);
-  box-shadow:
-    0 7px 0 0 #2a2c34,
-    0 8px 0 0 #14161c;
+  background: transparent;
+  box-shadow: none;
 }.level-node.boss-level.current .lv-hex{
   background:
     radial-gradient(ellipse at 42% 28%,
@@ -1491,12 +1469,8 @@ desaturated coin
       inset 0 -2px 4px rgba(0,0,0,0.45);
   }
 }.level-node.boss-level.current .lv-hex::before{
-  background: conic-gradient(
-    #a02030 0deg, #d84060 60deg, #a02030 120deg,
-    #600818 180deg, #a02030 240deg, #d84060 300deg, #a02030 360deg);
-  box-shadow:
-    0 9px 0 0 #480610,
-    0 10px 0 0 #200208;
+  background: transparent;
+  box-shadow: none;
 }.level-node.boss-level.current::before{
   background: radial-gradient(ellipse,
     rgba(255,50,80,0.45) 0%, transparent 75%);
@@ -1512,12 +1486,8 @@ desaturated coin
     inset 0 2px 3px rgba(210,250,255,0.75),
     inset 0 -2px 4px rgba(0,0,0,0.4);
 }.level-node.boss-level.passed .lv-hex::before{
-  background: conic-gradient(
-    #901828 0deg, #c04050 60deg, #901828 120deg,
-    #500810 180deg, #901828 240deg, #c04050 300deg, #901828 360deg);
-  box-shadow:
-    0 7px 0 0 #380610,
-    0 8px 0 0 #180208;
+  background: transparent;
+  box-shadow: none;
 }.level-node.boss-level .lv-label{
   color: #fff;
   text-shadow:
@@ -1541,12 +1511,8 @@ pulsing
     inset 0 -2px 4px rgba(0,0,0,0.4);
   animation: reliefPulse 1.8s ease-in-out infinite;
 }.level-node.relief-level .lv-hex::before{
-  background: conic-gradient(
-    #0098b8 0deg, #20d8f0 60deg, #0098b8 120deg,
-    #005068 180deg, #0098b8 240deg, #20d8f0 300deg, #0098b8 360deg);
-  box-shadow:
-    0 7px 0 0 #003048,
-    0 8px 0 0 #001420;
+  background: transparent;
+  box-shadow: none;
 }.level-node.relief-level .lv-label{
   color: #fff;
   text-shadow:
@@ -1951,7 +1917,7 @@ pulsing
   align-items: center;
   gap: 8px;
   width: 100%;
-}.game-top-row1 .game-score-block{ min-width: 0; }.game-top-row1 .game-moves{ justify-self: center; }.game-top-row1 .game-target{ min-width: 0; justify-content: flex-end; display: flex; }/* Row 2 lives inside score-block now — remove old standalone styles */
+}.game-top-row1 .game-score-block{ min-width: 0; }.game-top-row1 .game-moves{ justify-self: center; }.game-top-row1 .game-target{ min-width: 0; justify-content: flex-end; display: flex; max-width: 100%; }/* Row 2 lives inside score-block now — remove old standalone styles */
 .game-top-row2{
   padding: 4px 0 0 0;
 }/* ── Back button ── */
@@ -2063,19 +2029,20 @@ pulsing
   100% { transform: scale(1) rotate(0); color: #ffffff; }
 }/* ── TARGET panel (right side) ── */
 .game-target{
-  display: flex; flex-direction: column; align-items: flex-end;
-  gap: 1px;
+  display: flex; flex-direction: row; flex-wrap: wrap;
+  align-items: center; justify-content: flex-end;
+  gap: 4px 8px;
   background: transparent;
   border: none;
   border-radius: 12px;
-  padding: 6px 10px;
+  padding: 4px 10px;
   font-family: var(--font-display); font-weight: 900;
-  font-size: 18px;
+  font-size: 14px;
   color: #ffffff;
   white-space: nowrap;
   box-shadow: none;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }.game-target::before{
   display: none;
 }.game-target-label{
@@ -5006,10 +4973,11 @@ shop pattern */
 .hud-obj{
   display: inline-flex; align-items: center; gap: 3px;
   font-family: var(--font-display); font-weight: 900;
-  font-size: 16px;
+  font-size: 14px;
   color: #ffffff;
   text-shadow: 0 0 8px rgba(255,255,255,0.4);
-  margin-left: 2px;
+  margin-left: 0;
+  line-height: 1.2;
 }.hud-obj-gem{
   width: 18px; height: 18px;
   display: inline-flex;
@@ -6780,6 +6748,9 @@ no glow) */
   0%, 100% { transform: scale(1) rotate(-8deg); }
   50%      { transform: scale(1.1) rotate(-8deg); }
 }/* AD SIMULATION */
+/* modal-ad must stack above other modals (e.g. modal-roleta stays open behind it) */
+#modal-ad{ z-index: 200; }
+
 .ad-box{
   background: linear-gradient(180deg, rgba(20, 16, 50, 0.98), rgba(10, 10, 46, 1));
   border: 2px solid var(--c-neon-cyan);
@@ -8230,12 +8201,7 @@ etc.) ────────────── */
         <div class="cosmic-comet" style="top: 65%; left: -200px; animation-delay: -12s;"></div>
         <div class="cosmic-comet" style="top: 85%; left: -200px; animation-delay: -3s;"></div>
       </div>
-      <div class="cosmic-shooters">
-        <div class="cosmic-shooter" style="top: 8%;  left: -150px; animation-delay: 0s;"></div>
-        <div class="cosmic-shooter" style="top: 28%; left: -150px; animation-delay: -4s;"></div>
-        <div class="cosmic-shooter" style="top: 52%; left: -150px; animation-delay: -8s;"></div>
-        <div class="cosmic-shooter" style="top: 78%; left: -150px; animation-delay: -2s;"></div>
-      </div>
+
 
       <!-- decoration layer (cosmic) — populated dynamically by _renderCosmicDeco() -->
       <div class="home-deco">
@@ -8727,13 +8693,13 @@ etc.) ────────────── */
       <!-- BOOSTERS -->
       <div class="shop-section-title">Boosters</div>
 
-      <div class="shop-booster-row" onclick="buyBooster('hammer', 70)">
+      <div class="shop-booster-row" onclick="buyBooster('hammer', 45)">
         <div class="shop-booster-icon">🔨</div>
         <div class="shop-booster-info">
           <div class="shop-booster-name">Hammer</div>
           <div class="shop-booster-desc">Break any single gem</div>
         </div>
-        <div class="shop-booster-btn">💎 70</div>
+        <div class="shop-booster-btn">💎 45</div>
       </div>
 
       <div class="shop-booster-row" onclick="buyBooster('bomb', 110)">
@@ -9391,11 +9357,11 @@ etc.) ────────────── */
       <div class="wheel-rays" id="wheel-rays-victory"></div>
       <div class="wheel wheel-segs wheel-segs-6" id="wheel-victory">
         <div class="wheel-segment ws-0" style="position:absolute; left:64.6%; top:24.6%; transform:translate(-50%,-50%);"><span class="ws-icon">💎</span><span class="ws-amt">×5</span></div>
-        <div class="wheel-segment ws-1" style="position:absolute; left:79.3%; top:50%; transform:translate(-50%,-50%);"><span class="ws-icon">💎</span><span class="ws-amt">×10</span></div>
-        <div class="wheel-segment ws-2" style="position:absolute; left:64.6%; top:75.4%; transform:translate(-50%,-50%);"><span class="ws-icon">💎</span><span class="ws-amt">×15</span></div>
-        <div class="wheel-segment ws-3" style="position:absolute; left:35.4%; top:75.4%; transform:translate(-50%,-50%);"><span class="ws-icon">💎</span><span class="ws-amt">×20</span></div>
-        <div class="wheel-segment ws-4" style="position:absolute; left:20.7%; top:50%; transform:translate(-50%,-50%);"><span class="ws-icon">💎</span><span class="ws-amt">×30</span></div>
-        <div class="wheel-segment ws-5" style="position:absolute; left:35.4%; top:24.6%; transform:translate(-50%,-50%);"><span class="ws-icon">💎</span><span class="ws-amt">×50</span></div>
+        <div class="wheel-segment ws-1" style="position:absolute; left:79.3%; top:50%; transform:translate(-50%,-50%);"><span class="ws-icon">💎</span><span class="ws-amt">×8</span></div>
+        <div class="wheel-segment ws-2" style="position:absolute; left:64.6%; top:75.4%; transform:translate(-50%,-50%);"><span class="ws-icon">💎</span><span class="ws-amt">×12</span></div>
+        <div class="wheel-segment ws-3" style="position:absolute; left:35.4%; top:75.4%; transform:translate(-50%,-50%);"><span class="ws-icon">💎</span><span class="ws-amt">×16</span></div>
+        <div class="wheel-segment ws-4" style="position:absolute; left:20.7%; top:50%; transform:translate(-50%,-50%);"><span class="ws-icon">💎</span><span class="ws-amt">×22</span></div>
+        <div class="wheel-segment ws-5" style="position:absolute; left:35.4%; top:24.6%; transform:translate(-50%,-50%);"><span class="ws-icon">💎</span><span class="ws-amt">×35</span></div>
       </div>
       <div class="wheel-center wheel-center-3d"></div>
     </div>
@@ -10311,7 +10277,7 @@ function initStarfield() {
     // (re)generate stars
     const W = canvas.offsetWidth, H = canvas.offsetHeight;
     stars = [];
-    const count = Math.round((W * H) / 4500);
+    const count = Math.round((W * H) / 9000);
     for (let i = 0; i < count; i++) {
       stars.push({
         x: Math.random() * W,
@@ -10341,13 +10307,7 @@ function initStarfield() {
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(255,255,255,${a.toFixed(3)})`;
       ctx.fill();
-      // glow on bigger stars
-      if (s.r > 1) {
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r * 3, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0,229,255,${(a * 0.15).toFixed(3)})`;
-        ctx.fill();
-      }
+
     }
     raf = requestAnimationFrame(frame);
   }
@@ -11066,8 +11026,10 @@ function makeLevel(lv) {
   if (isBoss)   baseMoves = Math.max(9, baseMoves - 4);
   if (isRelief) baseMoves = baseMoves + 6;
 
-  // === TIME MODE (level 31+) ===
-  // From level 7000+: ALL levels are timed, with escalating difficulty phases
+  // === TIME MODE — starts at level 3000+ ===
+  // Below lv 3000: ALL levels are moves-based (no timer pressure).
+  // 3000–6999: occasional timed levels mixed in (one in every ~5-7 levels).
+  // 7000+: every level is timed, with escalating difficulty phases.
   if (lv >= 7000) {
     def.mode = MODE.TIME;
     def.isTimedMode = true;
@@ -11081,7 +11043,7 @@ function makeLevel(lv) {
     def.timeLimit = isBoss ? Math.max(20, baseTime - 10) : (isRelief ? Math.min(baseTime + 20, 80) : baseTime);
     // Store phase for HUD display
     def.difficultyPhase = lv >= 9000 ? 3 : (lv >= 8000 ? 2 : 1);
-  } else if (lv >= 31 && (lv % 7 === 3 || lv % 11 === 5)) {
+  } else if (lv >= 3000 && (lv % 7 === 3 || lv % 11 === 5)) {
     def.mode = MODE.TIME;
     def.isTimedMode = true;
     def.timeLimit = isBoss ? 50 : (isRelief ? 90 : 70);
@@ -11977,7 +11939,7 @@ function showUnlockTip(lv) {
 // ═══════════════════════════════════════════════════════════════
 // §10 HUD & TIMERS
 // ═══════════════════════════════════════════════════════════════
-const DAILY_RESET_MS = 7 * 60 * 60 * 1000; // 7h cooldown for daily roulette
+const DAILY_RESET_MS = 3 * 60 * 60 * 1000; // 3h cooldown for daily roulette
 
 /* Master tick - runs every second to update timers */
 let _prevLives = null;
@@ -12939,10 +12901,10 @@ function _slotHash(slotIdx, salt) {
 
 let _parallaxBigItems = null;
 function _updateParallax() {
-  // Parallax — Dica #9: galáxias gigantes (camada de fundo) movem-se mais devagar que os elementos pequenos
+  // Parallax disabled — big deco elements removed for performance
+  return;
   const scroller = document.getElementById('home-scroll');
   if (!scroller) return;
-  // Low-perf mode: skip parallax entirely (CSS already freezes the transforms)
   if (document.body.classList.contains('low-perf')) return;
   const scrollTop = scroller.scrollTop;
   
@@ -13285,24 +13247,26 @@ function _renderLevelWindow() {
   
   const L = MAP_LAYOUT;
   const total = state.totalLevels || 9999;
+  // Guard: if map has no real height yet (not laid out), bail — don't use fallback 1000
+  // which would cause wrong lvStart/lvEnd and wipe all mounted nodes
   const mapW = map.offsetWidth || 380;
-  const mapH = map.offsetHeight || 1000;
+  const mapH = map.offsetHeight;
+  if (!mapH || mapH < 100) return;
   
   // Determine which level numbers fall inside the viewport (+ buffer)
   const viewTop = scroller.scrollTop;
-  const viewBot = viewTop + scroller.clientHeight;
+  const viewBot = viewTop + (scroller.clientHeight || window.innerHeight);
   const renderTop = viewTop - L.RENDER_BUFFER_PX;
   const renderBot = viewBot + L.RENDER_BUFFER_PX;
   
   const lvAtY = (yPx) => Math.round((mapH - L.MARGIN_BOTTOM - yPx) / L.NODE_SPACING_Y + 1);
   let lvStart = Math.max(1, lvAtY(renderBot) - 1);
   let lvEnd = Math.min(total, lvAtY(renderTop) + 1);
-  if (lvEnd < lvStart) return;
+  // Safety: if range is invalid (can happen mid-layout), keep current nodes visible
+  if (lvEnd < lvStart || lvEnd - lvStart > 200) return;
   
   // Skip re-render if window unchanged
   if (container._lastStart === lvStart && container._lastEnd === lvEnd) return;
-  const prevStart = container._lastStart;
-  const prevEnd = container._lastEnd;
   container._lastStart = lvStart;
   container._lastEnd = lvEnd;
   
@@ -13311,11 +13275,14 @@ function _renderLevelWindow() {
   const mounted = container._mountedNodes;
   
   // ── Remove nodes that left the new range ──
-  for (const [lvNum, el] of mounted) {
-    if (lvNum < lvStart || lvNum > lvEnd) {
-      el.remove();
-      mounted.delete(lvNum);
-    }
+  // Collect keys first to avoid mutating Map during iteration
+  const toRemove = [];
+  for (const [lvNum] of mounted) {
+    if (lvNum < lvStart || lvNum > lvEnd) toRemove.push(lvNum);
+  }
+  for (const lvNum of toRemove) {
+    mounted.get(lvNum).remove();
+    mounted.delete(lvNum);
   }
   
   // Update connections SVG (covers full mapH; redrawn each pass, cheap)
@@ -13435,34 +13402,24 @@ function buildLevels() {
     let cosmicIdleTimer = null;
     let scrollEndTimer = null;
     scroller.addEventListener('scroll', () => {
-      // Mark scrolling state — CSS pauses non-essential animations
+      // Mark scrolling state immediately — CSS pauses all decorative animations
       if (!scroller.classList.contains('scrolling')) {
         scroller.classList.add('scrolling');
       }
+
+      // ── ALL DOM mutations deferred until scroll stops ──
+      // During fast flings, avoid any DOM add/remove/SVG rewrite.
+      // Only update the level window + decorations after the user lifts finger.
       if (scrollEndTimer) clearTimeout(scrollEndTimer);
       scrollEndTimer = setTimeout(() => {
         scroller.classList.remove('scrolling');
-      }, 180);
-
-      // ── Critical layers: render every frame during scroll ──
-      if (!scrollRaf) {
-        scrollRaf = requestAnimationFrame(() => {
-          scrollRaf = null;
-          _renderLevelWindow();
-          _updateParallax();
-        });
-      }
-      // ── Decorative layers: only after scroll has stopped ──
-      // Pulsars/plumes/constellations/deco are aesthetic; updating them
-      // every frame is the main cause of jank on fast scrolls.
-      if (cosmicIdleTimer) clearTimeout(cosmicIdleTimer);
-      cosmicIdleTimer = setTimeout(() => {
+        // Now safe to do DOM work — scroll has settled
+        _renderLevelWindow();
         _renderCosmicDeco();
         _renderCosmicPulsars();
         _renderCosmicPlumes();
         _renderCosmicConstellations();
-        cosmicIdleTimer = null;
-      }, 140);
+      }, 120);
     }, { passive: true });
     scroller._levelsScrollAttached = true;
   }
@@ -14072,16 +14029,19 @@ function bumpMoves() {
 
 function renderHudObjectives() {
   const list = state.game.objectives.filter(o => o.type !== OBJ.SCORE);
-  if (list.length === 0) {
-    const s = state.game.objectives.find(o => o.type === OBJ.SCORE);
-    if (!s) return '';
-    const remaining = Math.max(0, s.target - state.game.score);
-    return `<span class="game-target-label">OBJETIVO</span><span>${remaining}</span>`;
+  const scoreObj = state.game.objectives.find(o => o.type === OBJ.SCORE);
+  const parts = [];
+  // Always show score objective first (as target pts remaining)
+  if (scoreObj) {
+    const remaining = Math.max(0, scoreObj.target - state.game.score);
+    parts.push(`<span class="hud-obj">🎯 ${remaining}</span>`);
   }
-  const parts = list.slice(0, 2).map(o => {
+  if (list.length === 0 && parts.length > 0) return parts.join('');
+  list.forEach(o => {
     const remaining = Math.max(0, o.target - o.current);
     if (o.type === OBJ.COLLECT_COLOR) {
-      return `<span class="hud-obj"><span class="hud-obj-gem">${gemSVG(o.gemType)}</span> ${remaining}</span>`;
+      parts.push(`<span class="hud-obj"><span class="hud-obj-gem">${gemSVG(o.gemType)}</span> ${remaining}</span>`);
+      return;
     }
     const ic = {
       [OBJ.BREAK_STONES]:'🪨',
@@ -14092,9 +14052,9 @@ function renderHudObjectives() {
       [OBJ.DEFUSE_BOMB]:'💣',
       [OBJ.ESCORT_TROPHIES]:'🏆',
     }[o.type] || '';
-    return `<span class="hud-obj">${ic} ${remaining}</span>`;
+    parts.push(`<span class="hud-obj">${ic} ${remaining}</span>`);
   });
-  return `<span class="game-target-label">OBJECTIVE</span>` + parts.join('');
+  return parts.join('');
 }
 
 function fillTipsBoard() {
@@ -15482,7 +15442,12 @@ async function dropAndFill() {
       // Spawn new gems at top empty slots
       for (let i = 0; i < writeStart; i++) {
         const r = slots[i];
-        if (g.obstacles[r][c]) continue;
+        // Only skip spawn for obstacles that truly block the cell (STONE, HOLE, SLIME, etc.)
+        // ICE, WOOD and CHAIN are overlays — they sit ON TOP of a gem and must still receive one
+        const _spawnObs = g.obstacles[r] && g.obstacles[r][c];
+        if (_spawnObs && (_spawnObs.type === OBS.STONE || _spawnObs.type === OBS.HOLE ||
+            _spawnObs.type === OBS.SLIME || _spawnObs.type === OBS.TRASH ||
+            _spawnObs.type === OBS.TIME_BOMB || _spawnObs.type === OBS.TROPHY)) continue;
         const t = Math.floor(Math.random() * gemColors());
         g.grid[r][c] = t;
         g.special[r][c] = SPECIAL.NONE;
@@ -17161,7 +17126,7 @@ function renderBoosterShop() {
   const wrap = document.getElementById('booster-shop-list');
   if (!wrap) return;
   const items = [
-    { kind: 'hammer',  icon: '🔨', name: 'Hammer',  cost: 70,  desc: 'Break any single gem' },
+    { kind: 'hammer',  icon: '🔨', name: 'Hammer',  cost: 45,  desc: 'Break any single gem' },
     { kind: 'bomb',    icon: '💣', name: 'Bomb',    cost: 110, desc: 'Explode a 3×3 area' },
     { kind: 'shuffle', icon: '🔀', name: 'Shuffle', cost: 85,  desc: 'Reshuffle the board' },
     { kind: 'star',    icon: '⭐', name: 'Star',    cost: 130, desc: 'Remove one gem color' },
@@ -17259,6 +17224,16 @@ function buyDiamondPack(amount, priceLabel) {
   //   });
   //
   // For now, show a placeholder message until SDK is wired up.
+  // ── TEST MODE: 14,000 pack credited instantly for QA ──
+  if (amount === 14000) {
+    state.coins += amount;
+    saveState();
+    updateHUD();
+    audio.play('coin');
+    audio.play('star');
+    toast('+' + amount + ' 💎 (test mode)');
+    return;
+  }
   toast('Pi payments coming soon! (' + priceLabel + ' = ' + amount + ' 💎)');
 }
 
@@ -17269,12 +17244,13 @@ function buyDiamondPack(amount, priceLabel) {
 // §26 LUCKY SPIN & VICTORY ROULETTE
 // ═══════════════════════════════════════════════════════════════
 const WHEEL_REWARDS_VICTORY = [
-  { diamonds: 2  },
-  { diamonds: 4  },
-  { diamonds: 6  },
-  { diamonds: 10 },
-  { diamonds: 14 },
-  { diamonds: 20 }
+  // UI labels in markup (ws-0..ws-5) MUST match these amounts.
+  { diamonds: 5  },
+  { diamonds: 8  },
+  { diamonds: 12 },
+  { diamonds: 16 },
+  { diamonds: 22 },
+  { diamonds: 35 }
 ];
 
 /* =========================================================
@@ -17402,11 +17378,9 @@ function dailySpin() {
     openDailyChest();
     return;
   }
-  // Watch ad first
-  closeModal('modal-roleta');
+  // Watch ad first — keep modal-roleta open, show ad on top
   showAdSimulation(() => {
-    openModal('modal-roleta');
-    setTimeout(() => doActualDailySpin(), 400);
+    doActualDailySpin();
   });
 }
 
