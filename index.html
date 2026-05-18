@@ -381,7 +381,7 @@ fills the whole screen */
   /* Don't set overflow here — each modal's inner list handles its own scroll */
 }/* Reduced motion: skip decorative animations */
 @media (prefers-reduced-motion: reduce){
-  .cosmic-aurora-band, .cosmic-plume, .cosmic-pulsar,
+  .cosmic-aurora-band,
   .cosmic-shooter, .cosmic-comet,
   .home-deco .deco-planet svg, .home-deco .deco-asteroid svg,
   .home-deco .deco-saturn svg, .home-deco .deco-blackhole svg,
@@ -391,8 +391,6 @@ fills the whole screen */
   .modal-overlay.active .panel { animation: none !important; }
 }/* Low-memory / low-power devices: disable heavy effects */
 .low-perf .cosmic-aurora-band,
-.low-perf .cosmic-plume,
-.low-perf .cosmic-pulsar,
 .low-perf .cosmic-comet,
 .low-perf .cosmic-shooter{ display: none; }.low-perf .panel,
 .low-perf .home-dock,
@@ -731,7 +729,6 @@ pause all decorative animations.
 .home-scroll.scrolling .level-node.relief-level .lv-hex,
 .home-scroll.scrolling .home-map::before,
 .home-scroll.scrolling .home-map::after,
-.home-scroll.scrolling .cosmic-pulsar,
 .home-scroll.scrolling .cosmic-shooter,
 .home-scroll.scrolling .cosmic-comet,
 .home-scroll.scrolling .map-planet,
@@ -904,69 +901,6 @@ no DOM bloat.
   0%   { background-position: 0% 50%;   transform: rotate(-6deg) translateY(0); }
   50%  { background-position: 50% 50%;  transform: rotate(-3deg) translateY(-20px); }
   100% { background-position: 100% 50%; transform: rotate(-8deg) translateY(15px); }
-}/* Gas plumes — Dica #12: nuvens cósmicas usando conic-gradient */
-.cosmic-plumes{
-  display: none !important;
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}.cosmic-plume{
-  position: absolute;
-  width: 380px; height: 380px;
-  border-radius: 50%;
-  background: conic-gradient(from 0deg,
-    rgba(180, 100, 255, 0.18) 0deg,
-    rgba(120, 200, 255, 0.12) 60deg,
-    transparent 120deg,
-    rgba(255, 100, 200, 0.14) 200deg,
-    transparent 280deg,
-    rgba(80, 220, 255, 0.10) 320deg,
-    rgba(180, 100, 255, 0.18) 360deg);
-  filter: blur(30px);
-  opacity: 0.45;
-  animation: plumeRotate 60s linear infinite;
-}.cosmic-plume.alt{
-  background: conic-gradient(from 90deg,
-    rgba(80, 200, 255, 0.20) 0deg,
-    transparent 80deg,
-    rgba(255, 140, 80, 0.12) 160deg,
-    rgba(255, 100, 200, 0.16) 240deg,
-    transparent 320deg,
-    rgba(80, 200, 255, 0.20) 360deg);
-  animation-duration: 80s;
-  animation-direction: reverse;
-}
-@keyframes plumeRotate { to { transform: rotate(360deg); } }/* Pulsars — Dica #6: pontos brilhantes pulsando ritmicamente */
-.cosmic-pulsars{
-  display: none !important;
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none;
-  z-index: 1;
-  overflow: hidden;
-}.cosmic-pulsar{
-  position: absolute;
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #fff 0%, #c8e0ff 30%, transparent 70%);
-  box-shadow: 0 0 8px #fff, 0 0 16px rgba(200, 220, 255, 0.6);
-  animation: pulsarBlink 3s ease-in-out infinite;
-}.cosmic-pulsar.cyan{
-  background: radial-gradient(circle, #fff 0%, #80ffe0 30%, transparent 70%);
-  box-shadow: 0 0 10px #80ffe0, 0 0 20px rgba(80, 255, 224, 0.7);
-}.cosmic-pulsar.pink{
-  background: radial-gradient(circle, #fff 0%, #ffaad8 30%, transparent 70%);
-  box-shadow: 0 0 10px #ffaad8, 0 0 20px rgba(255, 170, 216, 0.7);
-}.cosmic-pulsar.gold{
-  background: radial-gradient(circle, #fff 0%, #ffe480 30%, transparent 70%);
-  box-shadow: 0 0 10px #ffe480, 0 0 20px rgba(255, 228, 128, 0.7);
-}
-@keyframes pulsarBlink {
-  0%, 100% { transform: scale(1);   opacity: 1;   }
-  40%      { transform: scale(0.4); opacity: 0.3; }
-  60%      { transform: scale(1.6); opacity: 1;   }
 }/* Shooting stars — Dica #5: estrelas cadentes ocasionais */
 .cosmic-shooters{
   position: absolute;
@@ -1002,18 +936,6 @@ no DOM bloat.
   10%  { transform: translate(60vw, 30vh) rotate(20deg); opacity: 1; }
   12%  { opacity: 0; }
   100% { opacity: 0; }
-}/* Constellations — Dica #8: pontos conectados por linhas finas pontilhadas */
-.cosmic-constellations{
-  display: none;
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.55;
-}.cosmic-constellations svg{
-  position: absolute;
-  width: 100%; height: 100%;
-  overflow: visible;
 }/* Comets — Dica #4: linha brilhante diagonal aparecendo aleatoriamente */
 .cosmic-comets{
   position: absolute;
@@ -2949,11 +2871,36 @@ pulse targets */
   0%, 100% { filter: none; }
   50%      { filter: none; }
 }.sp-rainbow{
-  background: conic-gradient(from 0deg, #ff5252, #ffd54a, #6cd44d, #4ec0f7, #b07cff, #ff5252);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-size: 32px !important;
+  /* Reset the old text-clip stuff — we're rendering an SVG diamond now */
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  -webkit-text-fill-color: initial;
+  font-size: 0 !important;
+}.sp-rainbow .rainbow-diamond{
+  width: 92%;
+  height: 92%;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.7))
+          drop-shadow(0 0 12px rgba(180,124,255,0.5));
+  animation: rainbowDiamondSpin 4s linear infinite;
+}
+@keyframes rainbowDiamondSpin {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.08); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+/* Hide the underlying colored gem body for RAINBOW so only the diamond shows */
+.gem.special.sp-rainbow-host > svg,
+.gem.special.sp-rainbow-host > img,
+.gem.special.sp-rainbow-host > canvas{
+  opacity: 0 !important;
+}
+.gem.special.sp-rainbow-host{
+  background: radial-gradient(circle at 50% 45%,
+    rgba(255,255,255,0.25) 0%,
+    rgba(180,124,255,0.20) 35%,
+    rgba(80,140,220,0.10) 60%,
+    transparent 75%);
 }/* ── New special overlays ── */
 .sp-wrapped{
   font-size: 28px !important;
@@ -3270,6 +3217,240 @@ pulse targets */
   0%   { transform: scale(1) translateY(0); opacity: 1; }
   50%  { transform: scale(1.4) translateY(-12px); opacity: 1; }
   100% { transform: scale(0.5) translateY(40px); opacity: 0; }
+}
+/* === EGG / CHRYSALIS (countdown then hatches into random gem) === */
+.obs-egg{
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+  border: none;
+  overflow: visible;
+}
+.obs-egg .egg-shell{
+  position: absolute;
+  inset: 8%;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background:
+    radial-gradient(ellipse at 30% 25%, rgba(255,255,255,0.7) 0%, transparent 35%),
+    linear-gradient(155deg, #f8c8e5 0%, #c98ad9 45%, #8e5cc7 100%);
+  border: 2px solid rgba(255,255,255,0.85);
+  box-shadow:
+    inset 0 -4px 8px rgba(60,20,100,0.45),
+    inset 0 3px 4px rgba(255,255,255,0.55),
+    0 2px 8px rgba(0,0,0,0.4),
+    0 0 12px rgba(200,138,217,0.55);
+}
+.obs-egg .egg-fuse{
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 18px;
+  color: #fff;
+  text-shadow:
+    0 0 4px rgba(140,90,200,0.95),
+    0 2px 3px rgba(0,0,0,0.85);
+  -webkit-text-stroke: 1px rgba(80,30,140,0.7);
+  paint-order: stroke fill;
+  line-height: 1;
+}
+/* Subtle idle wobble */
+.obs-egg .egg-shell{
+  animation: eggWobble 3.5s ease-in-out infinite;
+}
+@keyframes eggWobble {
+  0%, 100% { transform: rotate(-2deg); }
+  50%      { transform: rotate(2deg); }
+}
+/* Urgent state (fuse = 1) — vibrates faster + glow intensifies */
+.obs-egg.urgent .egg-shell{
+  animation: eggUrgent 0.4s ease-in-out infinite;
+  box-shadow:
+    inset 0 -4px 8px rgba(60,20,100,0.45),
+    inset 0 3px 4px rgba(255,255,255,0.55),
+    0 2px 8px rgba(0,0,0,0.4),
+    0 0 20px rgba(255,180,230,0.85);
+}
+.obs-egg.urgent .egg-fuse{
+  color: #fff;
+  text-shadow: 0 0 8px rgba(255,180,230,1), 0 2px 3px rgba(0,0,0,0.9);
+  animation: eggFusePulse 0.4s ease-in-out infinite;
+}
+@keyframes eggUrgent {
+  0%, 100% { transform: rotate(-4deg) scale(1); }
+  50%      { transform: rotate(4deg) scale(1.04); }
+}
+@keyframes eggFusePulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.15); }
+}
+/* Hatch animation — sparkle + flash before being replaced by a gem */
+.obs-wrap.egg-hatching .egg-shell,
+.egg-hatching .egg-shell{
+  animation: eggHatchShell 0.45s ease-out forwards !important;
+}
+.egg-hatching .egg-fuse{
+  animation: eggHatchFuse 0.45s ease-out forwards;
+}
+@keyframes eggHatchShell {
+  0%   { transform: scale(1) rotate(0); opacity: 1; }
+  40%  { transform: scale(1.3) rotate(15deg); opacity: 1;
+         box-shadow: 0 0 30px rgba(255,255,255,1), 0 0 50px rgba(255,200,230,0.9); }
+  100% { transform: scale(2.2) rotate(30deg); opacity: 0; }
+}
+@keyframes eggHatchFuse {
+  0%   { opacity: 1; }
+  30%  { opacity: 0.6; transform: scale(0.5); }
+  100% { opacity: 0; transform: scale(0); }
+}
+/* New gem that emerges from hatched egg — born with a flash */
+.gem.egg-hatched-gem{
+  animation: eggBornGem 0.6s ease-out;
+}
+@keyframes eggBornGem {
+  0%   { transform: scale(0.3); filter: brightness(2) drop-shadow(0 0 16px rgba(255,255,255,0.9)); }
+  40%  { transform: scale(1.15); filter: brightness(1.5); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+/* === HONEY / STICKY (overlay that blocks swap for N turns) === */
+.obs-honey{
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(255,235,140,0.7) 0%, rgba(255,180,40,0.55) 50%, rgba(220,130,30,0.7) 100%);
+  border: 2px solid rgba(255,200,50,0.85);
+  border-radius: 8px;
+  box-shadow:
+    inset 0 -3px 4px rgba(140,80,20,0.4),
+    inset 0 2px 3px rgba(255,255,255,0.6),
+    0 0 8px rgba(255,200,80,0.5);
+  overflow: visible;
+}
+.obs-honey .honey-drip{
+  position: absolute;
+  bottom: -4px; left: 25%;
+  width: 6px; height: 8px;
+  background: linear-gradient(180deg, #ffd860 0%, #f0a020 100%);
+  border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
+  box-shadow:
+    -16px 1px 0 -1px #ffd860,
+    inset 0 1px 1px rgba(255,255,255,0.5);
+  animation: honeyDrip 2.2s ease-in-out infinite;
+}
+.obs-honey .honey-icon{
+  position: relative;
+  font-size: 22px;
+  z-index: 2;
+  filter: drop-shadow(0 1px 2px rgba(140,80,20,0.7));
+}
+@keyframes honeyDrip {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50%      { transform: translateY(3px); opacity: 0.8; }
+}
+.honey-melt{
+  animation: honeyMelt 0.4s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes honeyMelt {
+  0%   { transform: scale(1) translateY(0); opacity: 1; }
+  100% { transform: scale(0.7) translateY(8px); opacity: 0; }
+}
+/* === LIGHTNING ROD === */
+.obs-rod{
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    linear-gradient(180deg, #4a5a7a 0%, #2a3550 50%, #4a5a7a 100%);
+  border: 2px solid #8090b0;
+  border-radius: 6px;
+  box-shadow:
+    inset 0 2px 3px rgba(255,255,255,0.45),
+    inset 0 -2px 3px rgba(0,0,0,0.5),
+    0 0 12px rgba(120,180,255,0.45);
+}
+.obs-rod .rod-body{
+  position: absolute;
+  inset: 8% 35%;
+  background: linear-gradient(180deg, #cad5e8, #6878a0 60%, #2a3550);
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+}
+.obs-rod .rod-spark{
+  position: relative;
+  z-index: 2;
+  font-size: 22px;
+  color: #ffe040;
+  text-shadow: 0 0 8px rgba(255,224,64,1), 0 0 14px rgba(255,180,80,0.8);
+  animation: rodSpark 1.4s ease-in-out infinite;
+}
+@keyframes rodSpark {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50%      { transform: scale(1.15); opacity: 1; }
+}
+.rod-beam{
+  position: absolute;
+  z-index: 50;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0) 0%,
+      rgba(180,220,255,0.7) 30%,
+      rgba(255,255,255,1) 50%,
+      rgba(180,220,255,0.7) 70%,
+      rgba(255,255,255,0) 100%);
+  box-shadow:
+    0 0 14px rgba(180,220,255,0.9),
+    0 0 28px rgba(120,180,255,0.65);
+  animation: rodBeamFlash 0.55s ease-out forwards;
+}
+@keyframes rodBeamFlash {
+  0%   { opacity: 0; transform: scaleY(0.2); filter: brightness(2); }
+  20%  { opacity: 1; transform: scaleY(1);   filter: brightness(2.5); }
+  60%  { opacity: 1; transform: scaleY(1);   filter: brightness(1.6); }
+  100% { opacity: 0; transform: scaleY(0.8); filter: brightness(1); }
+}
+/* === MIRROR === */
+.obs-mirror{
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    linear-gradient(135deg, rgba(220,235,255,0.85) 0%, rgba(140,170,210,0.9) 50%, rgba(220,235,255,0.85) 100%);
+  border: 2px solid rgba(255,255,255,0.9);
+  border-radius: 8px;
+  box-shadow:
+    inset 0 2px 3px rgba(255,255,255,0.8),
+    inset 0 -2px 4px rgba(80,100,140,0.4),
+    0 0 12px rgba(180,220,255,0.55);
+}
+.obs-mirror .mirror-shine{
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.85) 50%, transparent 70%);
+  background-size: 200% 200%;
+  animation: mirrorShine 3s linear infinite;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.obs-mirror .mirror-icon{
+  position: relative;
+  z-index: 2;
+  font-size: 22px;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(180,220,255,1), 0 1px 2px rgba(60,90,140,0.7);
+  font-weight: 900;
+}
+@keyframes mirrorShine {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.gem.mirror-reflected{
+  animation: mirrorReflect 0.32s ease-out forwards;
+}
+@keyframes mirrorReflect {
+  0%   { transform: scale(1); filter: brightness(1); }
+  50%  { transform: scale(1.3); filter: brightness(2) drop-shadow(0 0 14px rgba(180,220,255,1)); }
+  100% { transform: scale(0); opacity: 0; }
 }
 /* === TROPHY TRAY SLOTS (last row destination) === */
 .trophy-tray-slot{
@@ -4842,6 +5023,12 @@ shop pattern */
   box-shadow: 0 0 10px var(--c-neon-red);
   animation: bossPulse 1s ease-in-out infinite;
 }
+/* When the mode-tag is inside the moves card (which has overflow:hidden),
+   suppress the red glow — it bleeds into the card and looks like a tint. */
+.game-moves .level-mode-tag.boss{
+  box-shadow: none;
+  animation: none;
+}
 @keyframes bossPulse {
   0%, 100% { box-shadow: 0 0 10px var(--c-neon-red); }
   50%      { box-shadow: 0 0 20px var(--c-neon-red); }
@@ -5177,9 +5364,29 @@ shop pattern */
   border: 1px solid #1f2a55;
   border-radius: 22px;
   box-shadow: 0 12px 30px rgba(0,0,0,0.55);
+  /* Allow internal scroll on long content (e.g. when board preview is open) */
   overflow: hidden;
   display: flex; flex-direction: column;
   max-height: 92vh;
+}
+/* Scrollable region wrapping everything EXCEPT the Start button.
+   The Start button stays pinned at the bottom; the body scrolls. */
+.pl-modern .pl-scroll-body{
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.pl-modern .pl-scroll-body::-webkit-scrollbar{ width: 4px; }
+.pl-modern .pl-scroll-body::-webkit-scrollbar-thumb{
+  background: rgba(120,180,220,0.3);
+  border-radius: 4px;
+}
+.pl-modern .pl-start-wrap{
+  flex-shrink: 0;
+  border-top: 1px solid rgba(120,180,220,0.15);
+  background: linear-gradient(180deg, transparent 0%, rgba(13,18,51,0.6) 30%, #0d1233 100%);
 }.pl-modern > .close-x{
   position: absolute;
   top: 10px; right: 10px;
@@ -5278,35 +5485,7 @@ shop pattern */
   width: 32px; height: 32px;
   background: #1a2660;
   border: 1px solid #2a3970;
-}/* Rewards */
-.pl-rewards{
-  margin: 10px 12px 0;
-  padding: 8px 10px;
-  background: #2a2418;
-  border: 1px solid #6a5a28;
-  border-radius: 12px;
-}.pl-rewards-title{
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 10.5px;
-  letter-spacing: 1.5px;
-  color: #ffd54a;
-  margin-bottom: 6px;
-  text-align: center;
-}.pl-rewards-row{
-  display: flex; gap: 6px; justify-content: center;
-  flex-wrap: wrap;
-}.pl-reward-chip{
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 4px 9px;
-  border-radius: 999px;
-  background: #1a1a30;
-  border: 1px solid #6a5a28;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 11px;
-  color: #ffe88a;
-}.pl-rw-ico{ font-size: 12px; }/* Collapsible preview */
+}/* Collapsible preview */
 .pl-preview-wrap{
   margin: 10px 12px 0;
   border-radius: 12px;
@@ -8192,9 +8371,6 @@ etc.) ────────────── */
         <div class="cosmic-aurora-band"></div>
         <div class="cosmic-aurora-band"></div>
       </div>
-      <div class="cosmic-plumes" id="cosmic-plumes"></div>
-      <div class="cosmic-pulsars" id="cosmic-pulsars"></div>
-      <div class="cosmic-constellations" id="cosmic-constellations"></div>
       <div class="cosmic-comets">
         <div class="cosmic-comet" style="top: 12%; left: -200px; animation-delay: 0s;"></div>
         <div class="cosmic-comet" style="top: 38%; left: -200px; animation-delay: -6s;"></div>
@@ -8422,6 +8598,10 @@ etc.) ────────────── */
   <div class="panel prelevel-panel pl-modern">
     <button class="close-x" onclick="closeModal('modal-prelevel')">✕</button>
 
+    <!-- Everything except the Start button is inside this scrollable wrapper
+         so the modal stays usable when the board preview is open. -->
+    <div class="pl-scroll-body">
+
     <!-- Hero -->
     <div class="pl-hero">
       <div class="pl-hero-glow"></div>
@@ -8479,16 +8659,6 @@ etc.) ────────────── */
     </div>
     <div id="pl-objectives"></div>
 
-    <!-- Rewards strip -->
-    <div class="pl-rewards">
-      <div class="pl-rewards-title">★ Rewards on win</div>
-      <div class="pl-rewards-row">
-        <div class="pl-reward-chip"><span class="pl-rw-ico">⭐</span><span>1–3 stars</span></div>
-        <div class="pl-reward-chip"><span class="pl-rw-ico">💎</span><span>+10–30</span></div>
-        <div class="pl-reward-chip"><span class="pl-rw-ico">🎁</span><span>Chest</span></div>
-      </div>
-    </div>
-
     <!-- Collapsible preview -->
     <div class="pl-preview-wrap">
       <div class="pl-preview-toggle" onclick="togglePreLevelPreview(this)">
@@ -8501,7 +8671,9 @@ etc.) ────────────── */
     <!-- Legacy hidden moves anchor (kept for compatibility) -->
     <span id="pl-moves" style="display:none;">25 moves</span>
 
-    <!-- Start button -->
+    </div><!-- /.pl-scroll-body -->
+
+    <!-- Start button (pinned at bottom, outside scroll area) -->
     <div class="pl-start-wrap">
       <button class="btn btn-start-mission pl-start" onclick="closeModal('modal-prelevel')">
         <span class="btn-start-icon">▶</span> START MISSION
@@ -10050,7 +10222,7 @@ function showSectorScan(levelNum, callback) {
   scan.innerHTML = `
     <div class="sector-scan-grid"></div>
     <div class="sector-scan-content">
-      <div class="sector-scan-line">SCANEANDO COORDENADAS</div>
+      <div class="sector-scan-line">SCANNING COORDINATES</div>
       <div class="sector-scan-title">SECTOR ${String(levelNum).padStart(3, '0')}</div>
       <div class="sector-scan-progress">
         <div class="sector-scan-progress-fill"></div>
@@ -10927,6 +11099,10 @@ const OBS = {
   TIME_BOMB: 7,   // timer counts down with each move; explodes -> game over
   TRASH: 8,       // garbage block dropped by combos; needs 1 hit to break
   TROPHY: 9,      // movable trophy — falls with gravity, escort to bottom row
+  EGG: 10,        // countdown egg — hatches into a random colored gem at 0
+  HONEY: 11,      // sticky overlay on a gem: gem can't be swapped for N turns; clears with match
+  ROD: 12,        // lightning rod: on player match, fires a horizontal beam on rod's row
+  MIRROR: 13,     // mirror: match adjacent → also destroys cells on the opposite column
 };
 
 // Objective types
@@ -10939,7 +11115,8 @@ const OBJ = {
   BREAK_CHAIN: 'break_chain',
   CLEAR_SLIME: 'clear_slime',
   DEFUSE_BOMB: 'defuse_bomb',
-  ESCORT_TROPHIES: 'escort_trophies', // bring N trophies to the bottom row
+  ESCORT_TROPHIES: 'escort_trophies',
+  HATCH_EGG: 'hatch_egg',  // break eggs before they hatch (or let them hatch)
 };
 
 // Level mode (movement vs time)
@@ -10969,10 +11146,8 @@ function makeLevel(lv) {
   if (lv >= 8000) { boardRows = 6; boardCols = 6; }
   else if (lv >= 1500) { boardRows = 7; boardCols = 7; }
 
-  // === COLOR COUNT — fewer colors = matches harder to plan, more random ===
-  let numColors = 6;
-  if (lv >= 6000) numColors = 4;
-  else if (lv >= 3000) numColors = 5;
+  // numColors default — will be refined after band is known
+  let numColors = 5;
 
   const def = {
     levelNum: lv,
@@ -11021,9 +11196,29 @@ function makeLevel(lv) {
     lv <= 8500  ? 19 : // singularity-V — 6x6 board
                   20;  // omega — final tier
 
-  // === MOVE COUNT — floor of 11 (was 12), slightly tighter at high levels ===
-  let baseMoves = Math.max(11, Math.round(25 - lv * 0.10));
-  if (isBoss)   baseMoves = Math.max(9, baseMoves - 4);
+  // === COLOR COUNT (now that band is known) ===
+  // 5 colors is the default — more accessible, more matches possible.
+  // 6 colors makes matches scarcer — used as a "spice" on random difficult levels
+  // in higher bands. 4 colors only on very high levels (small board).
+  if (lv >= 6000) numColors = 4;
+  else if (!isRelief && band >= 4) {
+    if (isBoss) numColors = 6;
+    else if (rng() < 0.25) numColors = 6;
+  }
+  def.colors = numColors;
+
+  // === MOVE COUNT ===
+  // Levels 1-1000: a generous 25 moves baseline so puzzles feel solvable
+  //                and players don't burn through boosters.
+  // Levels 1000+:  gradually tightens to 15 moves at lv 9999 for harder play.
+  let baseMoves;
+  if (lv <= 1000) {
+    baseMoves = 25;
+  } else {
+    // Linear decay from 25 → 15 between lv 1000 and lv 9999
+    baseMoves = Math.max(15, Math.round(25 - (lv - 1000) * 0.0011));
+  }
+  if (isBoss)   baseMoves = Math.max(13, baseMoves - 4);
   if (isRelief) baseMoves = baseMoves + 6;
 
   // === TIME MODE — starts at level 3000+ ===
@@ -11051,15 +11246,16 @@ function makeLevel(lv) {
     def.moves = baseMoves;
   }
 
-  // === SCORE TARGET — linear up to lv 1000, then logarithmic to avoid impossible numbers ===
+  // === SCORE TARGET — rebalanced for fair pts/move ratio ===
+  // Old: 250 + lv*80 → at lv 86 with 16 moves = 446 pts/move (brutal)
+  // New: 200 + lv*45 → at lv 86 with 25 moves = 163 pts/move (fair)
   let scoreTarget;
   if (lv <= 1000) {
-    scoreTarget = 250 + lv * 80;  // unchanged for 1-1000 (~80k at lv 1000)
+    scoreTarget = 200 + lv * 45;  // ~45k at lv 1000
   } else {
-    // Logarithmic: +22k per doubling of lv beyond 1000
-    // Caps at ~150k for lv 9999, keeping pts/move manageable (~14k)
+    // Logarithmic ramp beyond 1000 — keeps high levels challenging without impossible
     const k = Math.log2(lv / 1000);
-    scoreTarget = Math.round(80250 + k * 22000);
+    scoreTarget = Math.round(45200 + k * 13000);
   }
   if (isBoss)   scoreTarget = Math.round(scoreTarget * 1.35);
   if (isRelief) scoreTarget = Math.round(scoreTarget * 0.55);
@@ -11067,10 +11263,12 @@ function makeLevel(lv) {
   const objList = [];
   objList.push({ type: OBJ.SCORE, target: scoreTarget, current: 0 });
 
-  // === COLOR COLLECTION — caps at 80 for high levels (was 50) ===
+  // === COLOR COLLECTION — rebalanced (was 60 cap, now 40 cap) ===
+  // Old: at lv 86 = 60 gems in 16 moves = 3.75/move (impossible)
+  // New: at lv 86 = 38 gems in 25 moves = 1.52/move (achievable)
   if (!isRelief) {
-    let colorTarget = Math.min(60, 10 + Math.floor(lv * 0.7));
-    if (lv >= 1000) colorTarget = Math.min(80, 50 + Math.floor((lv - 1000) / 250));
+    let colorTarget = Math.min(40, 8 + Math.floor(lv * 0.35));
+    if (lv >= 1000) colorTarget = Math.min(55, 35 + Math.floor((lv - 1000) / 350));
     if (isBoss) colorTarget = Math.round(colorTarget * 1.25);
     const gemType = lv % def.colors;
     objList.push({ type: OBJ.COLLECT_COLOR, target: colorTarget, current: 0, gemType });
@@ -11291,6 +11489,138 @@ function makeLevel(lv) {
       } else if (def.mode === MODE.TIME) {
         def.timeLimit = (def.timeLimit || 0) + placed * 12;
       }
+    }
+  }
+
+  // === EGG / CHRYSALIS (every 5 levels starting at lv 49, skip boss/relief/trophy) ===
+  // Eggs hatch into a random colored gem after N moves (5 default).
+  // Player can break them with an adjacent match BEFORE they hatch to count
+  // toward HATCH_EGG objective, OR let them hatch for a free gem (no harm).
+  // Egg levels: 49, 54, 59... (each 5 levels, automatically skipping boss/relief
+  // because (lv - 49) % 5 lands on cycle positions 0..3 = normal levels only).
+  // Skipping levels that already have trophies to avoid feature overload.
+  const hasTrophy = def.trophyCount > 0;
+  if (lv >= 49 && !isRelief && !isBoss && !hasTrophy && ((lv - 49) % 5 === 0)) {
+    // Count scales gently: 2 eggs in band 3, up to 4 in higher bands
+    let eggCount;
+    if (band >= 7)       eggCount = 4;
+    else if (band >= 5)  eggCount = 3;
+    else                 eggCount = 2;
+    eggCount = Math.min(eggCount, Math.floor(def.rows * def.cols / 8));
+
+    const exclude = new Set([
+      ...def.initialObstacles.map(o => `${o.r},${o.c}`),
+      ...def.initialHoles.map(h => `${h.r},${h.c}`),
+    ]);
+    let placed = 0;
+    let attempts = 0;
+    // Eggs spread across the board (upper 2/3 to avoid blocking last row)
+    while (placed < eggCount && attempts < 40) {
+      attempts++;
+      const r = Math.floor(rng() * Math.max(2, Math.floor(def.rows * 2 / 3)));
+      const c = Math.floor(rng() * def.cols);
+      const key = r + ',' + c;
+      if (exclude.has(key)) continue;
+      def.initialObstacles.push({ r, c, type: OBS.EGG, hp: 1, fuse: 5 });
+      exclude.add(key);
+      placed++;
+    }
+    if (placed > 0) {
+      objList.push({ type: OBJ.HATCH_EGG, target: placed, current: 0 });
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SPECIAL CELLS — Honey, Rod, Mirror
+  // These are NOT objectives — they're board modifiers that change gameplay.
+  // We never spawn them on trophy/egg/boss/relief levels to avoid overload.
+  // ═══════════════════════════════════════════════════════════════
+  const hasOtherSpecials = def.trophyCount > 0 ||
+    objList.some(o => o.type === OBJ.HATCH_EGG);
+
+  // === HONEY (lv 31+, every 4 levels — skips boss/relief naturally) ===
+  // Sticky overlay on a gem: gem can't be swapped for N turns.
+  // Clears naturally after timer expires OR with a direct match on it.
+  // First level: 31 (cycle pos 0). Step 4 lands on cycle 0, 4, 2, 0... so
+  // some hits land on boss (cycle 4); those are filtered out by !isBoss.
+  // Resulting normal levels: 31, 39, 43, 51, 55, 63, 67, 75, 79...
+  if (lv >= 31 && !isRelief && !isBoss && !hasOtherSpecials && ((lv - 31) % 4 === 0)) {
+    let honeyCount;
+    if (band >= 7)      honeyCount = 4;
+    else if (band >= 5) honeyCount = 3;
+    else                honeyCount = 2;
+    const exclude = new Set([
+      ...def.initialObstacles.map(o => `${o.r},${o.c}`),
+      ...def.initialHoles.map(h => `${h.r},${h.c}`),
+    ]);
+    let placed = 0;
+    let attempts = 0;
+    while (placed < honeyCount && attempts < 40) {
+      attempts++;
+      const r = Math.floor(rng() * def.rows);
+      const c = Math.floor(rng() * def.cols);
+      const key = r + ',' + c;
+      if (exclude.has(key)) continue;
+      def.initialObstacles.push({ r, c, type: OBS.HONEY, hp: 1, stickyTurns: 3 });
+      exclude.add(key);
+      placed++;
+    }
+  }
+
+  // === LIGHTNING ROD (lv 61+) ===
+  // Permanent rod: when player makes a match anywhere, a horizontal beam
+  // fires through the rod's row, destroying breakable obstacles in that row.
+  // Strategy: instead of fixed "every X levels", we attach a rod to ANY level
+  // that has ≥6 breakable obstacles. This guarantees rod always has work to do.
+  // We use a deterministic hash so the same level always gets the same result.
+  if (lv >= 61 && !isRelief && !isBoss && !hasOtherSpecials) {
+    const BREAKABLE = [OBS.STONE, OBS.WOOD, OBS.ICE, OBS.CHAIN, OBS.TRASH];
+    const breakableCount = def.initialObstacles.filter(o => BREAKABLE.includes(o.type)).length;
+    // Need at least 6 breakables. Then ~50% of those levels get a rod (rng-based).
+    if (breakableCount >= 6 && rng() < 0.5) {
+      const rodCount = (breakableCount >= 12 && band >= 6) ? 2 : 1;
+      const exclude = new Set([
+        ...def.initialObstacles.map(o => `${o.r},${o.c}`),
+        ...def.initialHoles.map(h => `${h.r},${h.c}`),
+      ]);
+      let placed = 0;
+      let attempts = 0;
+      while (placed < rodCount && attempts < 30) {
+        attempts++;
+        const r = 1 + Math.floor(rng() * Math.max(1, def.rows - 2));
+        const c = (rng() < 0.5) ? 0 : (def.cols - 1);
+        const key = r + ',' + c;
+        if (exclude.has(key)) continue;
+        def.initialObstacles.push({ r, c, type: OBS.ROD, hp: 1 });
+        exclude.add(key);
+        placed++;
+      }
+    }
+  }
+
+  // === MIRROR (lv 81+, every 7 levels — some hits filtered by isBoss/isRelief) ===
+  // Permanent mirror: when player makes a match adjacent to it, the cells
+  // at the horizontally-mirrored position also get destroyed.
+  // Step 7 means hits drift through the cycle; normal-only levels:
+  // 81, 88, 109, 116, 123, 144...
+  if (lv >= 81 && !isRelief && !isBoss && !hasOtherSpecials && ((lv - 81) % 7 === 0)) {
+    const mirrorCount = band >= 7 ? 2 : 1;
+    const exclude = new Set([
+      ...def.initialObstacles.map(o => `${o.r},${o.c}`),
+      ...def.initialHoles.map(h => `${h.r},${h.c}`),
+    ]);
+    let placed = 0;
+    let attempts = 0;
+    while (placed < mirrorCount && attempts < 30) {
+      attempts++;
+      const r = 1 + Math.floor(rng() * Math.max(1, def.rows - 2));
+      // Place mirror in central column so reflection makes sense
+      const c = Math.floor(def.cols / 2);
+      const key = r + ',' + c;
+      if (exclude.has(key)) continue;
+      def.initialObstacles.push({ r, c, type: OBS.MIRROR, hp: 1 });
+      exclude.add(key);
+      placed++;
     }
   }
 
@@ -11774,6 +12104,7 @@ function refreshPauseUI() {
       else if (obj.type === OBJ.CLEAR_SLIME)  { icon = '☣️'; label = 'Slime'; }
       else if (obj.type === OBJ.DEFUSE_BOMB)  { icon = '💣'; label = 'Bombs'; }
       else if (obj.type === OBJ.ESCORT_TROPHIES) { icon = '🏆'; label = 'Trophies'; }
+      else if (obj.type === OBJ.HATCH_EGG)        { icon = '🥚'; label = 'Eggs'; }
       return `
         <div class="pause-obj ${ok ? 'done' : ''}">
           <span class="po-icon">${icon}</span>
@@ -12827,9 +13158,13 @@ const MAP_LAYOUT = {
   MARGIN_BOTTOM: 220,
   // Zigzag suave e centralizado: esquerda, centro, direita, centro, repete
   COLS: [0.30, 0.50, 0.70, 0.50],
-  // Smaller buffer on mobile: ~half the viewport vs. 1500px on desktop.
-  // Fewer nodes in DOM = lighter scroll.
-  RENDER_BUFFER_PX: IS_MOBILE_VIEW ? 700 : 1500,
+  // Smaller buffer on mobile so the DOM stays tiny during fast flings.
+  // Mobile: ~400px (≈3 nodes off-screen each side). Desktop: 1500px.
+  // Fewer nodes in DOM = lighter scroll work.
+  RENDER_BUFFER_PX: IS_MOBILE_VIEW ? 400 : 1500,
+  // Hard cap on how many nodes can be mounted at once. Acts as a safety net
+  // if the user fast-scrolls through huge gaps — keeps memory + DOM bounded.
+  MAX_MOUNTED_NODES: IS_MOBILE_VIEW ? 28 : 80,
 };
 
 // Compute pixel position for a given level number (independent of which window is rendered)
@@ -12853,8 +13188,13 @@ function _levelPosition(lvNum, mapW, mapH) {
 // Only slots visible in the scroll viewport are actually inserted in the DOM.
 
 const COSMIC_DECO = {
-  SLOT_HEIGHT: 600,      // every 600px there is one cosmic object
-  RENDER_BUFFER_PX: IS_MOBILE_VIEW ? 700 : 1500,
+  // Mobile: bigger slot height + smaller buffer = fewer total cosmic objects.
+  // This is the single biggest win for fast scrolling on weak phones.
+  SLOT_HEIGHT: IS_MOBILE_VIEW ? 800 : 600,
+  RENDER_BUFFER_PX: IS_MOBILE_VIEW ? 500 : 1500,
+  // On mobile we render 1 element per slot instead of 2 — halves the DOM
+  // and halves the per-frame paint cost during fling.
+  SUBSLOTS: IS_MOBILE_VIEW ? 1 : 2,
   // Distribution of element types per slot — total weight = 100
   // Cycle through types deterministically based on slot index
   TYPES: [
@@ -12927,311 +13267,137 @@ function _updateParallax() {
 // Invalidate parallax cache when decoration is re-rendered
 function _invalidateParallaxCache() { _parallaxBigItems = null; }
 
-function _renderCosmicPulsars() {
-  // Pulsares — 4-5 pontos brilhantes piscando ritmicamente em diferentes pontos da viewport
-  const map = document.getElementById('home-map');
-  const scroller = document.getElementById('home-scroll');
-  const layer = document.getElementById('cosmic-pulsars');
-  if (!map || !scroller || !layer) return;
-  // Skip if the layer is hidden anyway — avoids creating DOM no one will see
-  if (getComputedStyle(layer).display === 'none') return;
-  
-  const mapW = map.offsetWidth || 380;
-  const mapH = map.offsetHeight || 1000;
-  const viewTop = scroller.scrollTop;
-  const viewBot = viewTop + scroller.clientHeight;
-  const buffer = 800;
-  const renderTop = Math.max(0, viewTop - buffer);
-  const renderBot = Math.min(mapH, viewBot + buffer);
-  
-  // Slots de 400px, 1 pulsar cada
-  const SLOT_H = 400;
-  const slotStart = Math.floor(renderTop / SLOT_H);
-  const slotEnd = Math.floor(renderBot / SLOT_H);
-  
-  if (layer._lastStart === slotStart && layer._lastEnd === slotEnd) return;
-  layer._lastStart = slotStart;
-  layer._lastEnd = slotEnd;
-  
-  layer.innerHTML = '';
-  const colors = ['', 'cyan', 'pink', 'gold'];
-  const speeds = [2.5, 3, 3.5, 4, 5];
-  for (let s = slotStart; s <= slotEnd; s++) {
-    if (s < 0) continue;
-    const seed = _slotHash(s, 100);
-    const yPx = s * SLOT_H + (seed % SLOT_H);
-    const xPx = ((seed >>> 8) % 100) / 100 * mapW;
-    const col = colors[(seed >>> 16) % colors.length];
-    const speed = speeds[(seed >>> 20) % speeds.length];
-    const delay = ((seed >>> 24) % 100) / 100 * speed;
-    const pulsar = document.createElement('div');
-    pulsar.className = 'cosmic-pulsar' + (col ? ' ' + col : '');
-    pulsar.style.left = xPx + 'px';
-    pulsar.style.top = yPx + 'px';
-    pulsar.style.animationDuration = speed + 's';
-    pulsar.style.animationDelay = -delay + 's';
-    layer.appendChild(pulsar);
-  }
-}
-
-function _renderCosmicPlumes() {
-  // Plumas de gás — 1 a cada 1500px
-  const map = document.getElementById('home-map');
-  const scroller = document.getElementById('home-scroll');
-  const layer = document.getElementById('cosmic-plumes');
-  if (!map || !scroller || !layer) return;
-  if (getComputedStyle(layer).display === 'none') return;
-  
-  const mapW = map.offsetWidth || 380;
-  const mapH = map.offsetHeight || 1000;
-  const viewTop = scroller.scrollTop;
-  const viewBot = viewTop + scroller.clientHeight;
-  const buffer = 1000;
-  const renderTop = Math.max(0, viewTop - buffer);
-  const renderBot = Math.min(mapH, viewBot + buffer);
-  
-  const SLOT_H = 1500;
-  const slotStart = Math.floor(renderTop / SLOT_H);
-  const slotEnd = Math.floor(renderBot / SLOT_H);
-  
-  if (layer._lastStart === slotStart && layer._lastEnd === slotEnd) return;
-  layer._lastStart = slotStart;
-  layer._lastEnd = slotEnd;
-  
-  layer.innerHTML = '';
-  for (let s = slotStart; s <= slotEnd; s++) {
-    if (s < 0) continue;
-    const seed = _slotHash(s, 200);
-    const yPx = s * SLOT_H + (seed % SLOT_H) - 190; // -190 = half height
-    const xPx = ((seed >>> 8) % 100) / 100 * (mapW - 380); // keep within map
-    const isAlt = (seed & 1);
-    const plume = document.createElement('div');
-    plume.className = 'cosmic-plume' + (isAlt ? ' alt' : '');
-    plume.style.left = xPx + 'px';
-    plume.style.top = yPx + 'px';
-    layer.appendChild(plume);
-  }
-}
-
-function _renderCosmicConstellations() {
-  // Constelações — pontos conectados formando padrões
-  const map = document.getElementById('home-map');
-  const scroller = document.getElementById('home-scroll');
-  const layer = document.getElementById('cosmic-constellations');
-  if (!map || !scroller || !layer) return;
-  if (getComputedStyle(layer).display === 'none') return;
-  
-  const mapW = map.offsetWidth || 380;
-  const mapH = map.offsetHeight || 1000;
-  const viewTop = scroller.scrollTop;
-  const viewBot = viewTop + scroller.clientHeight;
-  const buffer = 800;
-  const renderTop = Math.max(0, viewTop - buffer);
-  const renderBot = Math.min(mapH, viewBot + buffer);
-  
-  const SLOT_H = 1200;
-  const slotStart = Math.floor(renderTop / SLOT_H);
-  const slotEnd = Math.floor(renderBot / SLOT_H);
-  
-  if (layer._lastStart === slotStart && layer._lastEnd === slotEnd) return;
-  layer._lastStart = slotStart;
-  layer._lastEnd = slotEnd;
-  
-  layer.innerHTML = '';
-  for (let s = slotStart; s <= slotEnd; s++) {
-    if (s < 0) continue;
-    // Each slot = 1 constellation with 4-6 stars
-    const seed = _slotHash(s, 300);
-    if ((seed % 100) < 35) continue; // 35% chance each slot has no constellation (sparse)
-    
-    const numStars = 4 + ((seed >>> 4) % 3); // 4..6 stars
-    const baseX = ((seed >>> 8) % 100) / 100 * (mapW - 180) + 30;
-    const baseY = s * SLOT_H + ((seed >>> 16) % (SLOT_H - 200)) + 100;
-    
-    const stars = [];
-    for (let i = 0; i < numStars; i++) {
-      const sh = _slotHash(s * 100 + i, 301);
-      const dx = ((sh % 200) - 100) * 1.4;       // -140..140
-      const dy = (((sh >>> 8) % 200) - 100) * 1.0; // -100..100
-      stars.push({ x: baseX + dx, y: baseY + dy });
-    }
-    
-    const ns = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(ns, 'svg');
-    svg.setAttribute('viewBox', `0 0 ${mapW} ${mapH}`);
-    svg.setAttribute('preserveAspectRatio', 'none');
-    svg.style.position = 'absolute';
-    svg.style.top = '0';
-    svg.style.left = '0';
-    svg.style.width = '100%';
-    svg.style.height = '100%';
-    
-    // Lines connecting stars in sequence
-    for (let i = 0; i < stars.length - 1; i++) {
-      const line = document.createElementNS(ns, 'line');
-      line.setAttribute('x1', stars[i].x);
-      line.setAttribute('y1', stars[i].y);
-      line.setAttribute('x2', stars[i + 1].x);
-      line.setAttribute('y2', stars[i + 1].y);
-      line.setAttribute('stroke', 'rgba(180, 200, 255, 0.45)');
-      line.setAttribute('stroke-width', '0.7');
-      line.setAttribute('stroke-dasharray', '1.5 4');
-      svg.appendChild(line);
-    }
-    // Stars themselves
-    for (const st of stars) {
-      const c = document.createElementNS(ns, 'circle');
-      c.setAttribute('cx', st.x);
-      c.setAttribute('cy', st.y);
-      c.setAttribute('r', '1.6');
-      c.setAttribute('fill', '#fff');
-      c.setAttribute('opacity', '0.85');
-      svg.appendChild(c);
-      // halo
-      const halo = document.createElementNS(ns, 'circle');
-      halo.setAttribute('cx', st.x);
-      halo.setAttribute('cy', st.y);
-      halo.setAttribute('r', '3');
-      halo.setAttribute('fill', '#fff');
-      halo.setAttribute('opacity', '0.25');
-      svg.appendChild(halo);
-    }
-    layer.appendChild(svg);
-  }
-}
 
 function _renderCosmicDeco() {
   const map = document.getElementById('home-map');
   const scroller = document.getElementById('home-scroll');
   const deco = map ? map.querySelector('.home-deco') : null;
   if (!map || !scroller || !deco) return;
-  
+
   const C = COSMIC_DECO;
   const mapW = map.offsetWidth || 380;
   const mapH = map.offsetHeight || 1000;
-  
+
   const viewTop = scroller.scrollTop;
   const viewBot = viewTop + scroller.clientHeight;
   const renderTop = Math.max(0, viewTop - C.RENDER_BUFFER_PX);
   const renderBot = Math.min(mapH, viewBot + C.RENDER_BUFFER_PX);
-  
+
   // Determine which slots fall inside the render window
   const slotStart = Math.floor(renderTop / C.SLOT_HEIGHT);
   const slotEnd = Math.floor(renderBot / C.SLOT_HEIGHT);
-  
+
   // Skip re-render if window unchanged
   if (deco._lastSlotStart === slotStart && deco._lastSlotEnd === slotEnd && deco._lastMapW === mapW) return;
   deco._lastSlotStart = slotStart;
   deco._lastSlotEnd = slotEnd;
   deco._lastMapW = mapW;
-  
-  // Clear and rebuild
-  deco.innerHTML = '';
-  
+
+  // ── DOM POOL ──
+  // Instead of innerHTML='' + recreating divs, we keep a pool of <div> elements
+  // and update their attributes. Way cheaper for fast scrolls.
+  if (!deco._pool) deco._pool = [];
+  const pool = deco._pool;
+
+  const subSlots = C.SUBSLOTS;
+  let poolIdx = 0;
+
   for (let slotIdx = slotStart; slotIdx <= slotEnd; slotIdx++) {
     if (slotIdx < 0) continue;
-    
-    // Slot's Y range: slot 0 starts at Y=0 (top of map), grows downward
+
     const slotYTop = slotIdx * C.SLOT_HEIGHT;
     const slotYBottom = slotYTop + C.SLOT_HEIGHT;
-    
     if (slotYTop > mapH || slotYBottom < 0) continue;
-    
-    // Each slot generates TWO cosmic objects (from 2 sub-positions)
-    // — one in the upper half, one in the lower half — to increase visual density.
-    for (let subSlot = 0; subSlot < 2; subSlot++) {
-      // Compose unique seed: slot * 10 + subSlot
+
+    for (let subSlot = 0; subSlot < subSlots; subSlot++) {
       const seed = slotIdx * 10 + subSlot;
-      
-      // Pick element type deterministically
       const typeIdx = _slotHash(seed, 1) % C.TYPES.length;
       const type = C.TYPES[typeIdx];
-      
-      // Position within slot:
-      //   - Big galaxies are CENTERED behind the level path (impactful background)
-      //   - Most other elements lean LEFT or RIGHT (away from level path)
-      //   - x can stick out beyond edges to give "floating in space" feel
-      const xJitter = (_slotHash(seed, 3) % 100) / 100; // 0..1
+
+      // X position (same logic as before)
+      const xJitter = (_slotHash(seed, 3) % 100) / 100;
       let xPx;
       if (type.big) {
-        // Big galaxies: centered, slightly off-center for organic feel
-        const centerJitter = (xJitter - 0.5) * 0.20; // -0.10 .. +0.10
+        const centerJitter = (xJitter - 0.5) * 0.20;
         xPx = (mapW - type.w) / 2 + mapW * centerJitter;
       } else {
         const sideHash = _slotHash(seed, 2);
-        // Bias towards sides: 4 of 5 weights are L/R, only 1 is center
         const sideBias = sideHash % 5;
         const side = (sideBias < 2) ? 0 : (sideBias < 4 ? 1 : 2);
         if (side === 0) {
-          // Stick out left edge (planet body partially off-screen)
           xPx = -type.w * 0.25 + (mapW * 0.10) * xJitter;
         } else if (side === 1) {
-          // Stick out right edge
           xPx = mapW - type.w * 0.75 - (mapW * 0.10) * xJitter;
         } else {
-          // Center-ish but smaller / further from main path
           xPx = mapW * 0.05 + (mapW * 0.90 - type.w) * xJitter;
         }
       }
-      
-      // Y within slot: subSlot 0 → upper half, subSlot 1 → lower half
-      const halfH = C.SLOT_HEIGHT / 2;
+
+      // Y position — when SUBSLOTS=1 we use the whole slot height
+      const halfH = subSlots === 1 ? C.SLOT_HEIGHT : C.SLOT_HEIGHT / 2;
       const yJitter = (_slotHash(seed, 4) % 100) / 100;
       const subYStart = slotYTop + subSlot * halfH;
       const yPx = subYStart + halfH * 0.10 + halfH * 0.80 * yJitter - type.h / 2;
-    
-    // Don't put elements right on top of the level path — keep central column clear
-    // Actually we *want* them around so it's fine; the dotted line passes through centrally
-    
-      // Build the element
-      const div = document.createElement('div');
-      div.className = 'deco-item ' + (type.cls || '');
-      div.style.left = xPx + 'px';
-      div.style.top = yPx + 'px';
-      div.style.width = type.w + 'px';
-      div.style.height = type.h + 'px';
-      
-      // Slight opacity variation for depth (back layer feels)
-      // Big galaxies are MORE translucent — they sit behind everything as atmospheric backdrop
+
+      // Opacity
       const opaHash = _slotHash(seed, 5) % 100;
       let opacity;
-      // Huge suns/moons: semi-transparent so they don't block the map path
       const isHugeCelestial = (type.cls || '').includes('huge') &&
         ((type.cls || '').includes('deco-sun') || (type.cls || '').includes('deco-moon'));
       const isAnySun = (type.cls || '').includes('deco-sun');
-      // Other planets, suns, moons and black holes: fully opaque, vivid colors
       const solidCls = ['deco-planet','deco-saturn','deco-blackhole','deco-sun','deco-moon'];
       const isSolid = solidCls.some(c => (type.cls || '').includes(c));
-      if (isHugeCelestial) {
-        opacity = 1.0;
-      } else if (isAnySun) {
-        opacity = 1.0;
-      } else if (isSolid) {
+      if (isHugeCelestial || isAnySun || isSolid) {
         opacity = 1.0;
       } else if (type.big) {
-        opacity = 0.22 + (opaHash / 100) * 0.18; // 0.22 .. 0.40
+        opacity = 0.22 + (opaHash / 100) * 0.18;
       } else {
-        opacity = 0.55 + (opaHash / 100) * 0.40; // 0.55 .. 0.95
+        opacity = 0.55 + (opaHash / 100) * 0.40;
       }
-      div.style.opacity = opacity.toFixed(2);
-      
-      // Slight size variation
+
       const scaleHash = _slotHash(seed, 6) % 100;
-      const scale = 0.75 + (scaleHash / 100) * 0.50; // 0.75 .. 1.25
-      div.style.transform = `scale(${scale.toFixed(2)})`;
-      div.style.transformOrigin = 'center center';
-      
-      // Build SVG with proper viewBox per type
+      const scale = 0.75 + (scaleHash / 100) * 0.50;
+
+      // ViewBox per type
       let viewBox = '0 0 100 100';
       if (type.id === 'sym-saturn') viewBox = '0 0 200 120';
       else if (type.id === 'sym-black-hole' || type.id === 'sym-galaxy' ||
                type.id === 'sym-galaxy-blue' || type.id === 'sym-galaxy-pink') viewBox = '0 0 200 200';
       else if (type.id === 'sym-asteroid') viewBox = '0 0 60 60';
       else if (type.id === 'sym-station') viewBox = '0 0 100 100';
-      
-      div.innerHTML = `<svg viewBox="${viewBox}" overflow="visible"><use href="#${type.id}"/></svg>`;
-      deco.appendChild(div);
-    } // end subSlot loop
+
+      // ── Get or create a div from the pool ──
+      let div = pool[poolIdx];
+      if (!div) {
+        div = document.createElement('div');
+        deco.appendChild(div);
+        pool[poolIdx] = div;
+      }
+      // Track what type the div is currently displaying so we only rebuild
+      // its inner SVG when the type changes (cheap reuse for unchanged slots).
+      const fullCls = 'deco-item ' + (type.cls || '');
+      if (div._typeId !== type.id || div._cls !== fullCls) {
+        div.className = fullCls;
+        div.innerHTML = `<svg viewBox="${viewBox}" overflow="visible"><use href="#${type.id}"/></svg>`;
+        div._typeId = type.id;
+        div._cls = fullCls;
+      }
+      div.style.cssText =
+        'left:' + xPx + 'px;' +
+        'top:' + yPx + 'px;' +
+        'width:' + type.w + 'px;' +
+        'height:' + type.h + 'px;' +
+        'opacity:' + opacity.toFixed(2) + ';' +
+        'transform:scale(' + scale.toFixed(2) + ');' +
+        'transform-origin:center center;' +
+        'display:block;';
+      poolIdx++;
+    }
+  }
+
+  // Hide any leftover pool items (from previous larger window)
+  for (let i = poolIdx; i < pool.length; i++) {
+    if (pool[i]) pool[i].style.display = 'none';
   }
 }
 
@@ -13284,6 +13450,21 @@ function _renderLevelWindow() {
     mounted.get(lvNum).remove();
     mounted.delete(lvNum);
   }
+
+  // ── Hard safety cap: if somehow we still have too many mounted (e.g. a huge
+  // viewport or buffer), evict the ones farthest from the current scroll position.
+  if (mounted.size > L.MAX_MOUNTED_NODES) {
+    const centerLv = (lvStart + lvEnd) / 2;
+    const sorted = [...mounted.keys()].sort((a, b) =>
+      Math.abs(b - centerLv) - Math.abs(a - centerLv)
+    );
+    const excess = mounted.size - L.MAX_MOUNTED_NODES;
+    for (let i = 0; i < excess; i++) {
+      const lvNum = sorted[i];
+      mounted.get(lvNum).remove();
+      mounted.delete(lvNum);
+    }
+  }
   
   // Update connections SVG (covers full mapH; redrawn each pass, cheap)
   let connectionsSvg = map.querySelector('.home-map-connections');
@@ -13299,35 +13480,65 @@ function _renderLevelWindow() {
     map.insertBefore(connectionsSvg, map.firstChild);
   }
   connectionsSvg.setAttribute('viewBox', `0 0 ${mapW} ${mapH}`);
-  connectionsSvg.innerHTML = '';
-  
+  // Don't innerHTML='' — that's expensive. Reuse existing <line> elements.
+  // We pool them: keep a list of <line> children, update attrs of N of them,
+  // and hide the rest. Way cheaper than create+append per pass.
+  if (!connectionsSvg._linePool) connectionsSvg._linePool = [];
+  const pool = connectionsSvg._linePool;
+
   // Find the next unbeaten boss gate
   let bossGateLv = Infinity;
   for (let bossLv = 5; bossLv <= total; bossLv += 6) {
     if (bossLv >= state.level) { bossGateLv = bossLv; break; }
   }
-  
+
   // Draw connections between consecutive visible levels
-  for (let lv = lvStart; lv < lvEnd; lv++) {
+  const lineCount = Math.max(0, lvEnd - lvStart);
+  for (let i = 0; i < lineCount; i++) {
+    const lv = lvStart + i;
     const a = _levelPosition(lv, mapW, mapH);
     const b = _levelPosition(lv + 1, mapW, mapH);
     const passed = (lv + 1) <= state.level && (lv + 1) <= bossGateLv;
     const color = passed ? 'rgba(120,210,255,0.85)' : 'rgba(120,150,200,0.30)';
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    let line = pool[i];
+    if (!line) {
+      // Lazily create a new line and add to the pool
+      line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('stroke-width', '3');
+      line.setAttribute('stroke-linecap', 'round');
+      line.setAttribute('stroke-dasharray', '2 8');
+      connectionsSvg.appendChild(line);
+      pool[i] = line;
+    }
+    // Update only what changed
     line.setAttribute('x1', a.xPx);
     line.setAttribute('y1', a.yPx);
     line.setAttribute('x2', b.xPx);
     line.setAttribute('y2', b.yPx);
     line.setAttribute('stroke', color);
-    line.setAttribute('stroke-width', '3');
-    line.setAttribute('stroke-linecap', 'round');
-    line.setAttribute('stroke-dasharray', '2 8');
-    connectionsSvg.appendChild(line);
+    line.style.display = '';
+  }
+  // Hide any leftover lines from a previous, larger pass
+  for (let i = lineCount; i < pool.length; i++) {
+    if (pool[i]) pool[i].style.display = 'none';
   }
   
   // ── Add only the nodes that are NEW in this pass ──
+  // Cap how many new nodes can be added in a single pass — if the user
+  // fast-scrolled and the window jumped a lot, we add a few per frame
+  // instead of trying to mount 50+ at once.
+  const MAX_NEW_PER_PASS = IS_MOBILE_VIEW ? 20 : 60;
+  let addedThisPass = 0;
   for (let lvNum = lvStart; lvNum <= lvEnd; lvNum++) {
     if (mounted.has(lvNum)) continue; // already in DOM
+    if (addedThisPass >= MAX_NEW_PER_PASS) {
+      // Reschedule another pass for the remaining nodes
+      // Force a re-trigger by clearing the "last" cache so the next call mounts them.
+      container._lastStart = null;
+      container._lastEnd = null;
+      requestAnimationFrame(() => _renderLevelWindow());
+      break;
+    }
     const { xPx, yPx } = _levelPosition(lvNum, mapW, mapH);
     
     const node = document.createElement('div');
@@ -13368,6 +13579,7 @@ function _renderLevelWindow() {
     node.addEventListener('click', () => onLevelClick(lvNum, isLocked || isGated, isCurrent && !isGated));
     container.appendChild(node);
     mounted.set(lvNum, node);
+    addedThisPass++;
   }
 }
 
@@ -13398,28 +13610,52 @@ function buildLevels() {
   
   // Attach scroll handler (only once)
   if (!scroller._levelsScrollAttached) {
-    let scrollRaf = null;
     let cosmicIdleTimer = null;
     let scrollEndTimer = null;
+    let levelMidScrollTimer = null;
+    let lastMidScrollAt = 0;
+
+    // Schedule the "settled" pass — splits the work across frames so
+    // a single fling never blocks the main thread.
+    let cosmicDecoTimer = null;
+    function settledPass() {
+      // Pass 1 (immediately): level nodes — cheap, most important
+      _renderLevelWindow();
+      // Pass 2 (delayed): cosmic decorations (planets, moons, galaxies, blackholes).
+      // Only run once the user is truly idle — debounced 350ms more — because
+      // _renderCosmicDeco rebuilds a chunk of DOM and can briefly block.
+      if (cosmicDecoTimer) clearTimeout(cosmicDecoTimer);
+      cosmicDecoTimer = setTimeout(() => {
+        requestAnimationFrame(() => {
+          _renderCosmicDeco();
+        });
+      }, 350);
+    }
+
     scroller.addEventListener('scroll', () => {
       // Mark scrolling state immediately — CSS pauses all decorative animations
       if (!scroller.classList.contains('scrolling')) {
         scroller.classList.add('scrolling');
       }
 
-      // ── ALL DOM mutations deferred until scroll stops ──
-      // During fast flings, avoid any DOM add/remove/SVG rewrite.
-      // Only update the level window + decorations after the user lifts finger.
+      // ── MID-SCROLL: keep updating just the level nodes (cheap) at most every 120ms ──
+      // This avoids the "huge empty space + sudden snap" feel during long flings.
+      // Cosmic decorations stay frozen — they only update once the scroll settles.
+      const now = Date.now();
+      if (now - lastMidScrollAt > 120) {
+        lastMidScrollAt = now;
+        if (levelMidScrollTimer) cancelAnimationFrame(levelMidScrollTimer);
+        levelMidScrollTimer = requestAnimationFrame(() => {
+          _renderLevelWindow();
+        });
+      }
+
+      // ── SETTLED: full render after the user lifts finger ──
       if (scrollEndTimer) clearTimeout(scrollEndTimer);
       scrollEndTimer = setTimeout(() => {
         scroller.classList.remove('scrolling');
-        // Now safe to do DOM work — scroll has settled
-        _renderLevelWindow();
-        _renderCosmicDeco();
-        _renderCosmicPulsars();
-        _renderCosmicPlumes();
-        _renderCosmicConstellations();
-      }, 120);
+        settledPass();
+      }, 80);
     }, { passive: true });
     scroller._levelsScrollAttached = true;
   }
@@ -13436,9 +13672,6 @@ function buildLevels() {
     // Render the visible window now that scroll position is set
     _renderLevelWindow();
     _renderCosmicDeco();
-    _renderCosmicPulsars();
-    _renderCosmicPlumes();
-    _renderCosmicConstellations();
     _updateParallax();
   }));
 }
@@ -13703,6 +13936,18 @@ function showPreLevelModal(lv) {
     } else if (def.trophyCount > 0 && !state.seenTutorials.trophy) {
       pickedAlert = { kind:'trophy', icon:'🏆', title:'TROPHY ESCORT', desc:'Bring all trophies to the bottom row! They fall with gravity. Clear matches below them to make them drop.' };
       state.seenTutorials.trophy = true;
+    } else if (def.objectives && def.objectives.some(o => o.type === OBJ.HATCH_EGG) && !state.seenTutorials.egg) {
+      pickedAlert = { kind:'egg', icon:'🥚', title:'COSMIC EGGS', desc:'Eggs count down each move. Crack them with an adjacent match — or let them hatch into a random gem!'};
+      state.seenTutorials.egg = true;
+    } else if (def.initialObstacles && def.initialObstacles.some(o => o.type === OBS.HONEY) && !state.seenTutorials.honey) {
+      pickedAlert = { kind:'honey', icon:'🍯', title:'STICKY HONEY', desc:'Gems trapped in honey can\'t be swapped! Wait it out or match them directly to free them.' };
+      state.seenTutorials.honey = true;
+    } else if (def.initialObstacles && def.initialObstacles.some(o => o.type === OBS.ROD) && !state.seenTutorials.rod) {
+      pickedAlert = { kind:'rod', icon:'⚡', title:'LIGHTNING ROD', desc:'Make any match and the rod fires a horizontal beam, clearing obstacles in its row!' };
+      state.seenTutorials.rod = true;
+    } else if (def.initialObstacles && def.initialObstacles.some(o => o.type === OBS.MIRROR) && !state.seenTutorials.mirror) {
+      pickedAlert = { kind:'mirror', icon:'🪞', title:'COSMIC MIRROR', desc:'Match next to a mirror and the explosion also hits the symmetric cell on the opposite side!' };
+      state.seenTutorials.mirror = true;
     } else if (def.mode === MODE.TIME && !state.seenTutorials.time) {
       pickedAlert = { kind:'time', icon:'⏱', title:'TIMED SECTOR', desc:'You have limited time instead of moves. Score fast!' };
       state.seenTutorials.time = true;
@@ -13912,6 +14157,8 @@ function renderObjective(obj, large = false) {
     return `<div class="pl-icon" style="font-size:${sz}px">💣</div><div>Bombs <b>${obj.current}/${obj.target}</b></div>`;
   if (obj.type === OBJ.ESCORT_TROPHIES)
     return `<div class="pl-icon" style="font-size:${sz}px">🏆</div><div>Escort trophies <b>${obj.current}/${obj.target}</b></div>`;
+  if (obj.type === OBJ.HATCH_EGG)
+    return `<div class="pl-icon" style="font-size:${sz}px">🥚</div><div>Hatch eggs <b>${obj.current}/${obj.target}</b></div>`;
   return '';
 }
 
@@ -13981,6 +14228,9 @@ function updateGameHud() {
       tagEl.style.display = 'inline-block';
     } else {
       tagEl.style.display = 'none';
+      // Clear class to avoid glow/animation leaking even when hidden
+      tagEl.className = 'level-mode-tag';
+      tagEl.textContent = '';
     }
   }
 
@@ -14051,6 +14301,7 @@ function renderHudObjectives() {
       [OBJ.CLEAR_SLIME]:'☣️',
       [OBJ.DEFUSE_BOMB]:'💣',
       [OBJ.ESCORT_TROPHIES]:'🏆',
+      [OBJ.HATCH_EGG]:'🥚',
     }[o.type] || '';
     parts.push(`<span class="hud-obj">${ic} ${remaining}</span>`);
   });
@@ -14065,7 +14316,7 @@ function fillTipsBoard() {
 }
 
 /* Gem types per level def */
-function gemColors() { return state.game.def ? state.game.def.colors : 6; }
+function gemColors() { return state.game.def ? state.game.def.colors : 5; }
 
 /* Cell is playable (no hole, no stone unbreakable) */
 function isPlayable(r, c) {
@@ -14082,7 +14333,8 @@ function canHoldGem(r, c) {
   if (!inBounds(r, c)) return false;
   const o = state.game.obstacles[r][c];
   if (o && (o.type === OBS.HOLE || o.type === OBS.STONE || o.type === OBS.SLIME ||
-            o.type === OBS.TRASH || o.type === OBS.TIME_BOMB || o.type === OBS.TROPHY)) return false;
+            o.type === OBS.TRASH || o.type === OBS.TIME_BOMB || o.type === OBS.TROPHY ||
+            o.type === OBS.EGG || o.type === OBS.ROD || o.type === OBS.MIRROR)) return false;
   return true;
 }
 /* Gem on (r,c) is currently movable (not chained, not in stone/hole) */
@@ -14091,6 +14343,7 @@ function isMovable(r, c) {
   const o = state.game.obstacles[r][c];
   if (!o) return true;
   if (o.type === OBS.CHAIN) return false; // chained gems can be matched but not swapped
+  if (o.type === OBS.HONEY && (o.stickyTurns || 0) > 0) return false; // sticky honey blocks swap until it expires
   return true; // ice, wood, and other lighter overlays still allow swap
 }
 /* Check if a cell has a trophy (escort objective). Trophies are movable
@@ -14275,11 +14528,40 @@ function createGem(r, c, type, fromAbove = false) {
 
 function addSpecialOverlay(gem, sp) {
   gem.classList.add('special');
+  if (sp === SPECIAL.RAINBOW) gem.classList.add('sp-rainbow-host');
   let overlay = '';
   if (sp === SPECIAL.H_LINE) overlay = '<div class="sp-overlay sp-hline">↔</div>';
   else if (sp === SPECIAL.V_LINE) overlay = '<div class="sp-overlay sp-vline">↕</div>';
   else if (sp === SPECIAL.BOMB) overlay = '<div class="sp-overlay sp-bomb">💥</div>';
-  else if (sp === SPECIAL.RAINBOW) overlay = '<div class="sp-overlay sp-rainbow">✨</div>';
+  else if (sp === SPECIAL.RAINBOW) {
+    // Unique IDs per diamond to avoid gradient conflicts when multiple rainbows exist
+    const uid = (window._rbDiaCount = (window._rbDiaCount || 0) + 1);
+    overlay = `<div class="sp-overlay sp-rainbow">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="rainbow-diamond">
+      <defs>
+        <linearGradient id="rbDia1-${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+          <stop offset="50%" stop-color="#e0f0ff" stop-opacity="0.85"/>
+          <stop offset="100%" stop-color="#80b8ff" stop-opacity="0.6"/>
+        </linearGradient>
+        <linearGradient id="rbDia2-${uid}" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#ff5252" stop-opacity="0.9"/>
+          <stop offset="20%" stop-color="#ffd54a" stop-opacity="0.9"/>
+          <stop offset="40%" stop-color="#6cd44d" stop-opacity="0.9"/>
+          <stop offset="60%" stop-color="#4ec0f7" stop-opacity="0.9"/>
+          <stop offset="80%" stop-color="#b07cff" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#ff5252" stop-opacity="0.9"/>
+        </linearGradient>
+      </defs>
+      <polygon points="50,8 88,38 50,92 12,38" fill="url(#rbDia2-${uid})" stroke="#fff" stroke-width="2.5"/>
+      <polygon points="50,8 88,38 50,42 12,38" fill="url(#rbDia1-${uid})" stroke="#fff" stroke-width="1.5" opacity="0.85"/>
+      <line x1="50" y1="8"  x2="50" y2="92" stroke="#fff" stroke-width="1.2" opacity="0.6"/>
+      <line x1="12" y1="38" x2="88" y2="38" stroke="#fff" stroke-width="1.2" opacity="0.6"/>
+      <line x1="30" y1="20" x2="50" y2="42" stroke="#fff" stroke-width="0.8" opacity="0.5"/>
+      <line x1="70" y1="20" x2="50" y2="42" stroke="#fff" stroke-width="0.8" opacity="0.5"/>
+    </svg>
+  </div>`;
+  }
   // New specials
   else if (sp === SPECIAL.WRAPPED) overlay = '<div class="sp-overlay sp-wrapped">⊕</div>';
   else if (sp === SPECIAL.CROSS_BEAM) overlay = '<div class="sp-overlay sp-cross">✚</div>';
@@ -14329,6 +14611,29 @@ function renderObstacle(r, c) {
     html = `<div class="obs obs-trash">▦</div>`;
   } else if (o.type === OBS.TROPHY) {
     html = `<div class="obs obs-trophy">🏆</div>`;
+  } else if (o.type === OBS.EGG) {
+    const fuse = o.fuse || 5;
+    const urgent = fuse <= 1 ? ' urgent' : '';
+    html = `<div class="obs obs-egg${urgent}">
+              <div class="egg-shell"></div>
+              <div class="egg-fuse">${fuse}</div>
+            </div>`;
+  } else if (o.type === OBS.HONEY) {
+    const turns = o.stickyTurns || 0;
+    html = `<div class="obs obs-honey">
+              <div class="honey-drip"></div>
+              <div class="honey-icon">🍯</div>
+            </div>`;
+  } else if (o.type === OBS.ROD) {
+    html = `<div class="obs obs-rod">
+              <div class="rod-body"></div>
+              <div class="rod-spark">⚡</div>
+            </div>`;
+  } else if (o.type === OBS.MIRROR) {
+    html = `<div class="obs obs-mirror">
+              <div class="mirror-shine"></div>
+              <div class="mirror-icon">◇</div>
+            </div>`;
   }
   const wrap = document.createElement('div');
   wrap.className = 'obs-wrap';
@@ -14606,6 +14911,90 @@ async function trySwap(r1, c1, r2, c2) {
     return;
   }
 
+  // ── Activatable specials swapped: must form a match-3 involving the special ──
+  // Rule: the swap must form a match-3+ where the special's CELL is part of
+  // the match AND the special's color matches the line. Other matches that
+  // happen to form elsewhere on the board don't count.
+  const ACTIVATABLE = new Set([
+    SPECIAL.H_LINE, SPECIAL.V_LINE, SPECIAL.BOMB, SPECIAL.WRAPPED,
+    SPECIAL.CROSS_BEAM
+  ]);
+  if (ACTIVATABLE.has(sp1) || ACTIVATABLE.has(sp2)) {
+    // Find all matches and filter: only matches that include at least ONE
+    // of the special cells count as valid activation.
+    const allMatches = findAllMatches();
+    const specialCells = [];
+    if (ACTIVATABLE.has(sp1)) specialCells.push({ r: r2, c: c2 }); // sp1 ended at (r2,c2)
+    if (ACTIVATABLE.has(sp2)) specialCells.push({ r: r1, c: c1 }); // sp2 ended at (r1,c1)
+
+    // Filter matches: a match counts only if at least one of the special cells
+    // is part of its cells array. This guarantees the special is participating.
+    const validMatches = allMatches.filter(grp =>
+      grp.cells.some(cell =>
+        specialCells.some(sc => sc.r === cell.r && sc.c === cell.c)
+      )
+    );
+
+    if (validMatches.length === 0) {
+      // Invalid: revert the swap, no special fires
+      swapInGrid(r1, c1, r2, c2);
+      const a = gemAt(r2, c2); const b = gemAt(r1, c1);
+      if (a && b) {
+        a.style.transition = '';
+        b.style.transition = '';
+        _gemUnregister(r2, c2); _gemUnregister(r1, c1);
+        _gemRegister(a, r1, c1); _gemRegister(b, r2, c2);
+        a.dataset.r = r1; a.dataset.c = c1;
+        b.dataset.r = r2; b.dataset.c = c2;
+        const cs = state.game.cellSize, gp = state.game.cellGap || 2, step = cs + gp;
+        a.style.left = (c1 * step) + 'px'; a.style.top = (r1 * step) + 'px';
+        b.style.left = (c2 * step) + 'px'; b.style.top = (r2 * step) + 'px';
+        a.classList.add('wobble');
+        b.classList.add('wobble');
+        setTimeout(() => {
+          a && a.classList.remove('wobble');
+          b && b.classList.remove('wobble');
+        }, 420);
+      }
+      audio.play('error');
+      haptic([30, 20, 30]);
+      await wait(380);
+      state.game.busy = false;
+      scheduleHint();
+      return;
+    }
+    // Valid: the special is participating in a real match
+    state.game.movesLeft--; bumpMoves();
+    document.getElementById('game-moves').textContent = state.game.movesLeft;
+    // Collect all targets from activating each special whose cell is in a valid match
+    const allTargets = [];
+    const activatedSpecials = new Set();
+    for (const { r, c } of specialCells) {
+      const key = r + ',' + c;
+      // Activate only if this special is actually in one of the valid matches
+      const inValid = validMatches.some(grp =>
+        grp.cells.some(cell => cell.r === r && cell.c === c)
+      );
+      if (!inValid || activatedSpecials.has(key)) continue;
+      activatedSpecials.add(key);
+      const targets = await activateSpecialAt(r, c);
+      if (targets && targets.length > 0) allTargets.push(...targets);
+    }
+    // Include cells from the valid matches too (so the match gems are removed)
+    for (const grp of validMatches) {
+      for (const cell of grp.cells) {
+        allTargets.push({ r: cell.r, c: cell.c });
+      }
+    }
+    if (allTargets.length > 0) {
+      await detonate(allTargets);
+    }
+    await resolveCascade();
+    state.game.busy = false;
+    finishTurn();
+    return;
+  }
+
   const matches = findAllMatches();
   if (matches.length === 0) {
     swapInGrid(r1, c1, r2, c2);
@@ -14771,6 +15160,22 @@ function findAllMatches() {
   return findMatchGroups();
 }
 
+/* Visual: a horizontal beam flashes across the rod's row */
+function _spawnRodBeam(row) {
+  const g = state.game;
+  const grid = document.getElementById('board-grid');
+  if (!grid || !g) return;
+  const cs = g.cellSize, gap = g.cellGap || 2;
+  const beam = document.createElement('div');
+  beam.className = 'rod-beam';
+  beam.style.top = (row * (cs + gap)) + 'px';
+  beam.style.height = cs + 'px';
+  beam.style.left = '0';
+  beam.style.right = '0';
+  grid.appendChild(beam);
+  setTimeout(() => beam.remove(), 600);
+}
+
 /* Process a set of matched groups: create specials, score, hit obstacles, remove */
 // ═══════════════════════════════════════════════════════════════
 // §20 GAMEPLAY — CASCADE & SCORE
@@ -14891,6 +15296,18 @@ async function processMatches(groups, swap = null) {
   if (!g._bombsAttackedThisTurn) g._bombsAttackedThisTurn = new Set();
   if (!g.slimeAdjacentMatches) g.slimeAdjacentMatches = new Set();
 
+  // Track cells the mirror should also destroy. Built up while iterating matches
+  // and applied at the end (avoids mutating during iteration).
+  const mirrorReflectCells = new Set();
+  // Track rod rows to fire beam after match resolves.
+  // Rule: rod fires on ANY match anywhere on the board (not just adjacent).
+  // Restriction: only on player's initial match — NOT cascades — to avoid loops.
+  const rodRowsFired = new Set();
+  const isPlayerMatch = (g.cascadeMul === 1); // first pass = direct player action
+
+  // Rod fires only when match-3+ happens ADJACENT to a rod (not globally).
+  // This requires the player to make matches near the rod to trigger it.
+
   for (const v of removeSet.values()) {
     [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr, dc]) => {
       const ar = v.r + dr, ac = v.c + dc;
@@ -14913,6 +15330,24 @@ async function processMatches(groups, swap = null) {
         adjacentHit.add(ar + ',' + ac);
         g._bombsAttackedThisTurn.add(ar + ',' + ac);
       }
+      if (o.type === OBS.EGG) {
+        // Adjacent match cracks the egg early (counts toward HATCH_EGG objective)
+        adjacentHit.add(ar + ',' + ac);
+      }
+      if (o.type === OBS.MIRROR) {
+        // Match adjacent to mirror → also destroy the cell horizontally mirrored
+        // from the matched gem's position (mirror is permanent, not destroyed)
+        const mr = v.r;
+        const mc = (g.cols - 1) - v.c;
+        if (inBounds(mr, mc) && (mr !== v.r || mc !== v.c)) {
+          mirrorReflectCells.add(mr + ',' + mc);
+        }
+      }
+      if (o.type === OBS.ROD && isPlayerMatch && removeSet.size >= 3) {
+        // Rod fires when a match-3+ occurs adjacent to it.
+        // Only on player's initial match — never on cascades (avoids infinite chains).
+        rodRowsFired.add(ar);
+      }
     });
     // Check obstacle ON the matched cell itself
     const o = g.obstacles[v.r][v.c];
@@ -14923,7 +15358,53 @@ async function processMatches(groups, swap = null) {
       if (o.type === OBS.ICE) adjacentHit.add(v.r + ',' + v.c);
       // WOOD: same logic — only breaks when the gem under it is matched
       if (o.type === OBS.WOOD) adjacentHit.add(v.r + ',' + v.c);
+      // HONEY: direct match on a sticky gem clears the honey overlay
+      if (o.type === OBS.HONEY) adjacentHit.add(v.r + ',' + v.c);
     }
+  }
+
+  // === MIRROR REFLECTION ===
+  // Destroy the mirrored cells (best-effort: only if they hold a gem)
+  for (const key of mirrorReflectCells) {
+    const [r, c] = key.split(',').map(Number);
+    if (g.grid[r] && g.grid[r][c] >= 0 && canHoldGem(r, c)) {
+      const gem = gemAt(r, c);
+      if (gem) {
+        gem.classList.add('mirror-reflected');
+        spawnRichParticles(gem, g.grid[r][c]);
+        setTimeout(() => gem.remove(), 220);
+      }
+      g.grid[r][c] = -1;
+      g.special[r][c] = SPECIAL.NONE;
+      _gemUnregister(r, c);
+      // Score for reflected cells (smaller bonus to avoid being broken)
+      g.score = (g.score || 0) + 5;
+    }
+  }
+  if (mirrorReflectCells.size > 0) {
+    audio.play && audio.play('star');
+    showHudMessage('🪞 MIRROR REFLECT', 'success', 800);
+  }
+
+  // === ROD LIGHTNING BEAM ===
+  // Fire horizontal beam through each rod row. Destroys breakable obstacles
+  // (stone/wood/ice/chain/trash/honey/egg) in that row but NOT gems
+  // (to avoid clearing the whole row and breaking economy).
+  for (const rodRow of rodRowsFired) {
+    for (let cc = 0; cc < g.cols; cc++) {
+      const obs = g.obstacles[rodRow] && g.obstacles[rodRow][cc];
+      if (!obs) continue;
+      if (obs.type === OBS.ROD || obs.type === OBS.MIRROR ||
+          obs.type === OBS.HOLE || obs.type === OBS.TROPHY) continue; // protected
+      // Breakable obstacles take a hit
+      adjacentHit.add(rodRow + ',' + cc);
+    }
+    // Visual beam effect
+    _spawnRodBeam(rodRow);
+    audio.play && audio.play('rocket');
+  }
+  if (rodRowsFired.size > 0) {
+    showHudMessage('⚡ LIGHTNING ROD', 'success', 800);
   }
 
   // Screen shake + haptic based on cascade. Combo SFX is handled by showCombo()
@@ -14937,6 +15418,54 @@ async function processMatches(groups, swap = null) {
   } else {
     audio.play('match');
     haptic(25); // single short buzz on match
+  }
+
+  // ── Activate specials caught inside the match BEFORE removal ──
+  // When a match-3 includes cells that hold a V_LINE / H_LINE / BOMB / etc.
+  // special, those specials must fire their effect (line/column/area) and
+  // the affected cells must be added to the removeSet. This way a regular
+  // match-3 that happens to contain a special triggers it.
+  const ACTIVATABLE_IN_MATCH = new Set([
+    SPECIAL.H_LINE, SPECIAL.V_LINE, SPECIAL.BOMB, SPECIAL.WRAPPED,
+    SPECIAL.CROSS_BEAM
+  ]);
+  // Snapshot the original cells (we'll mutate removeSet as we expand)
+  const originalCells = [...removeSet.values()];
+  const triggeredKeys = new Set();
+  for (const v of originalCells) {
+    const sp = g.special[v.r][v.c];
+    if (!ACTIVATABLE_IN_MATCH.has(sp)) continue;
+    const k = v.r + ',' + v.c;
+    if (triggeredKeys.has(k)) continue;
+    triggeredKeys.add(k);
+    const extraTargets = await activateSpecialAt(v.r, v.c);
+    if (extraTargets && extraTargets.length > 0) {
+      for (const t of extraTargets) {
+        const tk = t.r + ',' + t.c;
+        if (removeSet.has(tk)) continue;
+        if (!inBounds(t.r, t.c)) continue;
+        // Check obstacle: stones block, others get hit but cell joins removeSet
+        const o = g.obstacles[t.r][t.c];
+        // ── PROTECTED OBSTACLES: never destroyed by specials ──
+        // Trophy: must be escorted, never blown up
+        // Mirror / Rod: permanent board modifiers
+        if (o && (o.type === OBS.HOLE || o.type === OBS.TROPHY ||
+                  o.type === OBS.MIRROR || o.type === OBS.ROD)) continue;
+        if (o && (o.type === OBS.STONE || o.type === OBS.ICE ||
+                  o.type === OBS.WOOD  || o.type === OBS.CHAIN)) {
+          await hitObstacle(t.r, t.c);
+          if (o.type === OBS.STONE) continue;
+        }
+        if (g.grid[t.r][t.c] === -1) continue;
+        removeSet.set(tk, { r: t.r, c: t.c, gemType: g.grid[t.r][t.c] });
+        // If the new cell also has a special, queue it for activation (chain)
+        if (g.special[t.r][t.c] !== SPECIAL.NONE &&
+            ACTIVATABLE_IN_MATCH.has(g.special[t.r][t.c]) &&
+            !triggeredKeys.has(tk)) {
+          originalCells.push({ r: t.r, c: t.c });
+        }
+      }
+    }
   }
 
   // Animate pop with rich particles + score popup per gem
@@ -15127,7 +15656,29 @@ async function hitObstacle(r, c) {
     }
     g.obstacles[r][c] = null;
     audio.play('powerup');
+  } else if (o.type === OBS.EGG) {
+    // Single adjacent match breaks the egg early (counts toward objective)
+    const dom = obsAt(r, c);
+    if (dom) {
+      dom.firstElementChild.classList.add('shatter');
+      setTimeout(() => dom.remove(), 250);
+    }
+    g.obstacles[r][c] = null;
+    incrementObjective(OBJ.HATCH_EGG, 1);
+    audio.play && audio.play('star');
+    showHudMessage('🥚 EGG CRACKED!', 'success', 1200);
+  } else if (o.type === OBS.HONEY) {
+    // Direct match on the sticky cell clears the honey (gem stays)
+    const dom = obsAt(r, c);
+    if (dom) {
+      dom.firstElementChild.classList.add('shatter');
+      setTimeout(() => dom.remove(), 250);
+    }
+    g.obstacles[r][c] = null;
+    audio.play && audio.play('powerup');
   }
+  // ROD and MIRROR are PERMANENT — they don't get destroyed by hits.
+  // Their effects fire elsewhere (see processMatches).
 }
 
 function incrementObjective(type, amount = 1, gemType = null) {
@@ -15839,7 +16390,12 @@ async function detonate(cells) {
     if (removeSet.has(k)) continue;
     if (!inBounds(cell.r, cell.c)) continue;
     const o = g.obstacles[cell.r][cell.c];
-    if (o && o.type === OBS.HOLE) continue;
+    // ── PROTECTED OBSTACLES: never destroyed by specials/boosters ──
+    // Trophy: must be escorted, never blown up
+    // Mirror / Rod: permanent board modifiers, can't be removed
+    // Hole: not a cell at all
+    if (o && (o.type === OBS.HOLE || o.type === OBS.TROPHY ||
+              o.type === OBS.MIRROR || o.type === OBS.ROD)) continue;
     if (o && (o.type === OBS.STONE || o.type === OBS.ICE || o.type === OBS.WOOD || o.type === OBS.CHAIN)) {
       await hitObstacle(cell.r, cell.c);
       if (o.type === OBS.STONE) continue;
@@ -15851,6 +16407,68 @@ async function detonate(cells) {
       const more = await activateSpecialAt(cell.r, cell.c, triggered);
       queue.push(...more);
     }
+  }
+
+  // === MIRROR REFLECTION (also fires for boosters) ===
+  // For every removed cell, check if any neighbor has a mirror — if yes,
+  // also destroy the cell horizontally mirrored from the matched cell.
+  const mirrorReflectCells = new Set();
+  // === ROD LIGHTNING BEAM (also fires for boosters) ===
+  // Rule: rod fires only when a booster's destroyed cell is adjacent to a rod
+  // AND the booster removed at least 3 cells (match-3 minimum).
+  // Single-gem hammer doesn't trigger rod.
+  const rodRowsFired = new Set();
+  const rodEligible = removeSet.size >= 3;
+  for (const v of removeSet.values()) {
+    [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr, dc]) => {
+      const ar = v.r + dr, ac = v.c + dc;
+      if (!inBounds(ar, ac)) return;
+      const adj = g.obstacles[ar][ac];
+      if (!adj) return;
+      if (adj.type === OBS.MIRROR) {
+        const mr = v.r;
+        const mc = (g.cols - 1) - v.c;
+        if (inBounds(mr, mc) && (mr !== v.r || mc !== v.c)) {
+          mirrorReflectCells.add(mr + ',' + mc);
+        }
+      }
+      if (adj.type === OBS.ROD && rodEligible) {
+        rodRowsFired.add(ar);
+      }
+    });
+  }
+  // Apply mirror reflections
+  for (const key of mirrorReflectCells) {
+    const [r, c] = key.split(',').map(Number);
+    if (g.grid[r] && g.grid[r][c] >= 0 && canHoldGem(r, c) && !removeSet.has(key)) {
+      const gem = gemAt(r, c);
+      if (gem) {
+        gem.classList.add('mirror-reflected');
+        spawnRichParticles(gem, g.grid[r][c]);
+        setTimeout(() => gem.remove(), 220);
+      }
+      removeSet.set(key, { r, c });
+      g.score = (g.score || 0) + 5;
+    }
+  }
+  if (mirrorReflectCells.size > 0) {
+    audio.play && audio.play('star');
+    showHudMessage('🪞 MIRROR REFLECT', 'success', 800);
+  }
+  // Apply rod beams — destroy breakable obstacles in those rows
+  for (const rodRow of rodRowsFired) {
+    for (let cc = 0; cc < g.cols; cc++) {
+      const obs = g.obstacles[rodRow] && g.obstacles[rodRow][cc];
+      if (!obs) continue;
+      if (obs.type === OBS.ROD || obs.type === OBS.MIRROR ||
+          obs.type === OBS.HOLE || obs.type === OBS.TROPHY) continue;
+      await hitObstacle(rodRow, cc);
+    }
+    _spawnRodBeam(rodRow);
+    audio.play && audio.play('rocket');
+  }
+  if (rodRowsFired.size > 0) {
+    showHudMessage('⚡ LIGHTNING ROD', 'success', 800);
   }
 
   // Score
@@ -16149,7 +16767,85 @@ async function finishTurn(timeOut = false) {
     }
   }
 
-  // 2. Slime: spreads if not attacked adjacent
+  // 2. Eggs: tick down their fuse; hatch into random gem at 0 (no harm)
+  {
+    const eggsToHatch = [];
+    let anyEggUpdated = false;
+    for (let r = 0; r < g.rows; r++) {
+      for (let c = 0; c < g.cols; c++) {
+        const o = g.obstacles[r][c];
+        if (o && o.type === OBS.EGG) {
+          o.fuse = (o.fuse !== undefined ? o.fuse : 5) - 1;
+          anyEggUpdated = true;
+          if (o.fuse <= 0) eggsToHatch.push({ r, c });
+        }
+      }
+    }
+    // Re-render living eggs to show new fuse number
+    if (anyEggUpdated) {
+      document.querySelectorAll('.obs-wrap').forEach(el => {
+        const r = +el.dataset.r, c = +el.dataset.c;
+        const o = g.obstacles[r] && g.obstacles[r][c];
+        if (o && o.type === OBS.EGG) {
+          el.remove();
+          renderObstacle(r, c);
+        }
+      });
+    }
+    // Hatch any eggs that reached 0 — replace with random colored gem
+    for (const { r, c } of eggsToHatch) {
+      const dom = document.querySelector(`.obs-wrap[data-r="${r}"][data-c="${c}"]`);
+      if (dom) {
+        // Sparkle animation before replacing
+        dom.classList.add('egg-hatching');
+        setTimeout(() => dom.remove(), 450);
+      }
+      g.obstacles[r][c] = null;
+      // Spawn a random colored gem here (no special)
+      const gemType = Math.floor(Math.random() * gemColors());
+      g.grid[r][c] = gemType;
+      g.special[r][c] = SPECIAL.NONE;
+      // Delay gem creation so the hatching effect plays first
+      setTimeout(() => {
+        // Re-check: make sure cell is still empty (gravity might have filled it)
+        if (g.grid[r] && g.grid[r][c] === gemType && !gemAt(r, c)) {
+          const gem = createGem(r, c, gemType, false);
+          gem.classList.add('egg-hatched-gem');
+          setTimeout(() => gem.classList.remove('egg-hatched-gem'), 600);
+        }
+      }, 400);
+      // Hatching counts as completing the egg objective
+      incrementObjective(OBJ.HATCH_EGG, 1);
+      audio.play && audio.play('star');
+      showHudMessage('🥚 EGG HATCHED', 'success', 1200);
+    }
+  }
+
+  // 2b. Honey: tick down stickyTurns; remove honey when reaches 0
+  {
+    let anyHoneyUpdated = false;
+    const honeyToClear = [];
+    for (let r = 0; r < g.rows; r++) {
+      for (let c = 0; c < g.cols; c++) {
+        const o = g.obstacles[r][c];
+        if (o && o.type === OBS.HONEY) {
+          o.stickyTurns = (o.stickyTurns !== undefined ? o.stickyTurns : 3) - 1;
+          anyHoneyUpdated = true;
+          if (o.stickyTurns <= 0) honeyToClear.push({ r, c });
+        }
+      }
+    }
+    for (const { r, c } of honeyToClear) {
+      const dom = document.querySelector(`.obs-wrap[data-r="${r}"][data-c="${c}"]`);
+      if (dom) {
+        dom.classList.add('honey-melt');
+        setTimeout(() => dom.remove(), 400);
+      }
+      g.obstacles[r][c] = null;
+    }
+  }
+
+  // 3. Slime: spreads if not attacked adjacent
   if (g.def && g.def.expansiveSlime) {
     await spreadSlime();
     // Re-check: if slime covers >70% of board, game over
