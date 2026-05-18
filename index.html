@@ -14935,32 +14935,33 @@ async function trySwap(r1, c1, r2, c2) {
     return;
   }
 
-  // ── Activatable specials swapped: must form a match-3 involving the special ──
-  // Rule: the swap must form a match-3+ where the special's CELL is part of
-  // the match AND the special's color matches the line. Other matches that
-  // happen to form elsewhere on the board don't count.
+  // ── Activatable specials swapped with an adjacent gem ──
+  // A swap involving a special (H_LINE, V_LINE, BOMB, etc.) is valid if:
+  //   (a) it forms a match-3+ that includes the special cell itself (special fires), OR
+  //   (b) it forms a match-3+ that includes the OTHER gem that was swapped
+  //       (the special just moved to a new position as a normal gem, match resolves normally).
+  // This fixes the bug where swapping a V_LINE sideways to complete a colour
+  // match among the neighbours was incorrectly rejected.
   const ACTIVATABLE = new Set([
     SPECIAL.H_LINE, SPECIAL.V_LINE, SPECIAL.BOMB, SPECIAL.WRAPPED,
     SPECIAL.CROSS_BEAM
   ]);
   if (ACTIVATABLE.has(sp1) || ACTIVATABLE.has(sp2)) {
-    // Find all matches and filter: only matches that include at least ONE
-    // of the special cells count as valid activation.
     const allMatches = findAllMatches();
     const specialCells = [];
     if (ACTIVATABLE.has(sp1)) specialCells.push({ r: r2, c: c2 }); // sp1 ended at (r2,c2)
     if (ACTIVATABLE.has(sp2)) specialCells.push({ r: r1, c: c1 }); // sp2 ended at (r1,c1)
 
-    // Filter matches: a match counts only if at least one of the special cells
-    // is part of its cells array. This guarantees the special is participating.
+    // Both swapped cells — a match involving either one is a valid move
+    const swappedCells = [{ r: r1, c: c1 }, { r: r2, c: c2 }];
     const validMatches = allMatches.filter(grp =>
       grp.cells.some(cell =>
-        specialCells.some(sc => sc.r === cell.r && sc.c === cell.c)
+        swappedCells.some(sc => sc.r === cell.r && sc.c === cell.c)
       )
     );
 
     if (validMatches.length === 0) {
-      // Invalid: revert the swap, no special fires
+      // No match formed — revert swap
       swapInGrid(r1, c1, r2, c2);
       const a = gemAt(r2, c2); const b = gemAt(r1, c1);
       if (a && b) {
@@ -14987,24 +14988,24 @@ async function trySwap(r1, c1, r2, c2) {
       scheduleHint();
       return;
     }
-    // Valid: the special is participating in a real match
+
     state.game.movesLeft--; bumpMoves();
     document.getElementById('game-moves').textContent = state.game.movesLeft;
-    // Collect all targets from activating each special whose cell is in a valid match
+
+    // Check if any special cell is part of a valid match (special fires)
     const allTargets = [];
     const activatedSpecials = new Set();
     for (const { r, c } of specialCells) {
       const key = r + ',' + c;
-      // Activate only if this special is actually in one of the valid matches
-      const inValid = validMatches.some(grp =>
+      const inValidMatch = validMatches.some(grp =>
         grp.cells.some(cell => cell.r === r && cell.c === c)
       );
-      if (!inValid || activatedSpecials.has(key)) continue;
+      if (!inValidMatch || activatedSpecials.has(key)) continue;
       activatedSpecials.add(key);
       const targets = await activateSpecialAt(r, c);
       if (targets && targets.length > 0) allTargets.push(...targets);
     }
-    // Include cells from the valid matches too (so the match gems are removed)
+    // Include all cells from valid matches (colour match gems removed normally)
     for (const grp of validMatches) {
       for (const cell of grp.cells) {
         allTargets.push({ r: cell.r, c: cell.c });
