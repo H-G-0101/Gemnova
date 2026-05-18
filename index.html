@@ -45,8 +45,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@400;600;700;800&family=Audiowide&display=optional" rel="stylesheet">
-<script src="https://app.cidi.games/sdk/cidi-sdk.js?v=20260427-expose-init-await-pi-init-1"></script>
-<script src="https://elf-resource.cidi.games/sdk/cidi-proxy-sdk.umd.js"></script>
+<script src="https://app.cidi.games/sdk/cidi-sdk.js?v=20260427-expose-init-await-pi-init-1" defer></script>
+<script src="https://elf-resource.cidi.games/sdk/cidi-proxy-sdk.umd.js" defer></script>
 <style>/* =========================================================
    COSMIC CRUSH - HTML5 mobile match-3 - single file
    Space-themed: starfield,
@@ -7153,6 +7153,22 @@ etc.) ────────────── */
   .modal-overlay.active .panel { max-height: calc(100dvh - 50px); max-height: calc(100vh - 50px); }
 }
 </style>
+<script>
+// Early synchronous low-perf detection (heuristic only, no FPS probe)
+// Runs before any CSS animation starts to avoid first-frame jank
+(function(){
+  var mem = navigator.deviceMemory;
+  var cores = navigator.hardwareConcurrency;
+  var conn = navigator.connection;
+  var slowConn = conn && (conn.saveData || conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g');
+  var lowMem = mem !== undefined && mem < 3;
+  var oldDevice = /Android [4-7]\.|iPhone OS [89]_|iPhone OS 1[0-2]_/i.test(navigator.userAgent);
+  var fewCores = cores !== undefined && cores <= 4;
+  if (lowMem || slowConn || (fewCores && oldDevice) || oldDevice) {
+    document.documentElement.classList.add('low-perf');
+  }
+})();
+</script>
 </head>
 <body>
 
@@ -12012,9 +12028,17 @@ const state = {
 // §7 SCREEN ROUTING
 // ═══════════════════════════════════════════════════════════════
 function show(screenId) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    // Pause CSS animations on inactive screens to save CPU/GPU
+    s.querySelectorAll('*').forEach(el => { el.style.animationPlayState = 'paused'; });
+  });
   const el = document.getElementById(screenId);
-  if (el) el.classList.add('active');
+  if (el) {
+    el.classList.add('active');
+    // Resume animations only on the active screen
+    el.querySelectorAll('*').forEach(el2 => { el2.style.animationPlayState = ''; });
+  }
 }
 function goToHome() {
   show('screen-home');
@@ -15429,13 +15453,23 @@ async function processMatches(groups, swap = null) {
     SPECIAL.H_LINE, SPECIAL.V_LINE, SPECIAL.BOMB, SPECIAL.WRAPPED,
     SPECIAL.CROSS_BEAM
   ]);
-  // Snapshot the original cells (we'll mutate removeSet as we expand)
+  // Snapshot the original directly-matched cells.
+  // BUG FIX: only cells that are DIRECTLY part of a matched group can trigger
+  // a special. Previously, cells added to removeSet by chain expansion (e.g.
+  // a H_LINE sweeping across the board) could themselves trigger further
+  // specials that were never adjacent to the original match — causing H_LINE
+  // and V_LINE to match with non-adjacent gems. We track directMatchKeys so
+  // only originally-matched cells can initiate special activation.
+  const directMatchKeys = new Set(removeSet.keys());
   const originalCells = [...removeSet.values()];
   const triggeredKeys = new Set();
   for (const v of originalCells) {
     const sp = g.special[v.r][v.c];
     if (!ACTIVATABLE_IN_MATCH.has(sp)) continue;
     const k = v.r + ',' + v.c;
+    // Only fire the special if this cell was directly part of a matched group,
+    // NOT if it was swept in by another special's line/area clear.
+    if (!directMatchKeys.has(k)) continue;
     if (triggeredKeys.has(k)) continue;
     triggeredKeys.add(k);
     const extraTargets = await activateSpecialAt(v.r, v.c);
@@ -15458,9 +15492,11 @@ async function processMatches(groups, swap = null) {
         }
         if (g.grid[t.r][t.c] === -1) continue;
         removeSet.set(tk, { r: t.r, c: t.c, gemType: g.grid[t.r][t.c] });
-        // If the new cell also has a special, queue it for activation (chain)
+        // Chain: if this newly-swept cell was also directly matched (two specials
+        // next to each other in the same match group), allow it to chain-fire.
         if (g.special[t.r][t.c] !== SPECIAL.NONE &&
             ACTIVATABLE_IN_MATCH.has(g.special[t.r][t.c]) &&
+            directMatchKeys.has(tk) &&
             !triggeredKeys.has(tk)) {
           originalCells.push({ r: t.r, c: t.c });
         }
@@ -18701,15 +18737,16 @@ const DEBUG_MODE = DEBUG_DEFAULT ||
   new URLSearchParams(window.location.search).get('debug') === '1';
 
 // debugLog is always defined (no-op when disabled) so other code doesn't crash
+let _debugLogEl = null;
 function debugLog(msg, color) {
   if (!DEBUG_MODE) return;
-  const log = document.getElementById('cidi-debug-log');
-  if (!log) return;
+  if (!_debugLogEl) _debugLogEl = document.getElementById('cidi-debug-log');
+  if (!_debugLogEl) return;
   const line = document.createElement('div');
   line.style.color = color || '#0ff';
   line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-  log.appendChild(line);
-  log.scrollTop = log.scrollHeight;
+  _debugLogEl.appendChild(line);
+  _debugLogEl.scrollTop = _debugLogEl.scrollHeight;
 }
 
 // Create overlay only if debug mode is enabled
