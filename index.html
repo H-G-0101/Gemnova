@@ -16733,30 +16733,32 @@ async function detonate(cells) {
     if (t >= 0) incrementObjective(OBJ.COLLECT_COLOR, 1, t);
   }
 
-  // Animate with rich particles + score popups
+  // Animate with rich particles + score popups.
+  // BUG FIX: capture DOM refs and unregister from _gemMap BEFORE the await,
+  // so dropAndFill (which runs right after) never sees stale entries in gemAt().
+  // The DOM elements are kept alive for the animation duration, then removed.
   let popupCount = 0;
+  const toRemoveDom = []; // [element] to remove after animation
   for (const v of removeSet.values()) {
     const gem = gemAt(v.r, v.c);
     const gemType = g.grid[v.r][v.c];
+    // Unregister from map immediately so dropAndFill never picks up these slots
+    _gemUnregister(v.r, v.c);
+    g.grid[v.r][v.c] = -1;
+    g.special[v.r][v.c] = SPECIAL.NONE;
     if (gem) {
       gem.classList.add('matching');
       spawnRichParticles(gem, gemType);
       spawnShockwave(gem);
-      // Don't spawn too many score popups (only every 3rd one)
       if (popupCount % 3 === 0) {
         spawnScorePopup(gem, 15 * g.cascadeMul);
       }
       popupCount++;
+      toRemoveDom.push(gem);
     }
-    g.grid[v.r][v.c] = -1;
-    g.special[v.r][v.c] = SPECIAL.NONE;
   }
   await wait(450);
-  for (const v of removeSet.values()) {
-    const gem = gemAt(v.r, v.c); // get ref BEFORE unregistering
-    _gemUnregister(v.r, v.c); // FIX #2: keep _gemMap consistent after special detonations
-    if (gem) gem.remove();
-  }
+  for (const gem of toRemoveDom) gem.remove();
   updateGameHud();
 }
 
