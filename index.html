@@ -14724,6 +14724,7 @@ function createGem(r, c, type, fromAbove = false) {
   gem.style.height = cs + 'px';
   gem.style.left = (c * step) + 'px';
   gem.style.top  = (fromAbove ? -(state.game.rows - r + 1) * step : r * step) + 'px';
+  gem.style.willChange = 'transform, top, left';
   gem.innerHTML = gemSVG(type) + '<div class="gem-sparkle"></div>';
   // special overlay
   const sp = state.game.special[r][c];
@@ -14947,6 +14948,23 @@ function attachBoardEvents() {
 
   let startR = -1, startC = -1, startX = 0, startY = 0, pressing = false;
   let activePointerId = null;
+  let dragGemEl = null;       // the gem being dragged
+  let dragOrigLeft = 0;       // original CSS left of the dragged gem
+  let dragOrigTop  = 0;       // original CSS top of the dragged gem
+  let swapFired = false;      // true once the swap has been committed
+
+  // Max distance the gem can follow the finger (capped at one cell)
+  const MAX_DRAG = () => (state.game.cellSize || 52) * 0.85;
+
+  function _resetDragGem() {
+    if (dragGemEl) {
+      dragGemEl.style.transition = 'transform 0.15s cubic-bezier(.4,1.3,.5,1)';
+      dragGemEl.style.transform  = '';
+      dragGemEl.style.zIndex     = '';
+      dragGemEl.style.filter     = '';
+      setTimeout(() => { if (dragGemEl) { dragGemEl.style.transition = ''; dragGemEl = null; } }, 160);
+    }
+  }
 
   grid.onpointerdown = (e) => {
     if (state.game.busy) return;
@@ -14977,9 +14995,17 @@ function attachBoardEvents() {
     try { grid.setPointerCapture(e.pointerId); } catch(_) {}
     activePointerId = e.pointerId;
 
-    pressing = true;
+    pressing  = true;
+    swapFired = false;
     startR = r; startC = c;
     startX = e.clientX; startY = e.clientY;
+
+    // Store gem ref for live drag tracking
+    dragGemEl   = gemEl;
+    dragOrigLeft = parseFloat(gemEl.style.left) || 0;
+    dragOrigTop  = parseFloat(gemEl.style.top)  || 0;
+    dragGemEl.style.zIndex = '50';
+    dragGemEl.style.willChange = 'transform';
 
     if (state.game.selected) {
       const sel = state.game.selected;
@@ -14987,15 +15013,15 @@ function attachBoardEvents() {
         trySwap(sel.r, sel.c, r, c);
         clearSelection();
         pressing = false;
+        _resetDragGem();
         return;
       } else if (sel.r === r && sel.c === c) {
-        clearSelection(); pressing = false; return;
+        clearSelection(); pressing = false; _resetDragGem(); return;
       } else clearSelection();
     }
     selectGem(r, c);
     audio.play('select');
-    haptic(20); // short tap on gem select
-    // Spawn touch ripple at exact click point
+    haptic(20);
     const gridRect = grid.getBoundingClientRect();
     spawnTouchRipple(e.clientX - gridRect.left, e.clientY - gridRect.top, grid);
   };
@@ -15005,15 +15031,42 @@ function attachBoardEvents() {
     if (activePointerId !== null && e.pointerId !== activePointerId) return;
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
-    // Lower threshold (18px) balances responsiveness vs accidental swaps on high-DPI touch screens
-    if (Math.abs(dx) > 18 || Math.abs(dy) > 18) {
+
+    // ── Live drag: gem follows finger, capped at MAX_DRAG ──
+    if (dragGemEl && !swapFired) {
+      const cap = MAX_DRAG();
+      const tx  = Math.max(-cap, Math.min(cap, dx));
+      const ty  = Math.max(-cap, Math.min(cap, dy));
+      dragGemEl.style.transition = 'none';
+      dragGemEl.style.transform  = `translate(${tx}px, ${ty}px)`;
+
+      // Subtle scale-up so the gem appears "lifted"
+      dragGemEl.style.filter = 'brightness(1.15) drop-shadow(0 4px 12px rgba(0,0,0,0.5))';
+    }
+
+    // Threshold: 25% of cell size — proportional, avoids accidental swaps on large screens
+    const threshold = (state.game.cellSize || 52) * 0.25;
+    if (!swapFired && (Math.abs(dx) > threshold || Math.abs(dy) > threshold)) {
+      // Require a clear dominant axis (angle < 60° from horizontal or vertical)
+      // to avoid accidental diagonal swaps
+      const angle = Math.abs(Math.atan2(dy, dx) * 180 / Math.PI);
+      const isDiagonal = (angle > 30 && angle < 60) || (angle > 120 && angle < 150);
+      if (isDiagonal) return; // not decisive yet — keep tracking
+
       let dr = 0, dc = 0;
       if (Math.abs(dx) > Math.abs(dy)) dc = dx > 0 ? 1 : -1;
       else dr = dy > 0 ? 1 : -1;
       const nr = startR + dr, nc = startC + dc;
       if (inBounds(nr, nc) && isMovable(nr, nc)) {
+        swapFired = true;
+        // Snap gem back smoothly before the swap animation takes over
+        _resetDragGem();
         clearSelection();
         trySwap(startR, startC, nr, nc);
+      } else {
+        // Target out of bounds or blocked — snap back and cancel
+        swapFired = true;
+        _resetDragGem();
       }
       pressing = false;
       activePointerId = null;
@@ -15021,7 +15074,9 @@ function attachBoardEvents() {
   };
 
   const endPress = (e) => {
+    if (dragGemEl && !swapFired) _resetDragGem();
     pressing = false;
+    swapFired = false;
     activePointerId = null;
     if (e && grid.hasPointerCapture && e.pointerId !== undefined) {
       try { grid.releasePointerCapture(e.pointerId); } catch(_) {}
@@ -15031,7 +15086,6 @@ function attachBoardEvents() {
   grid.onpointerup = endPress;
   grid.onpointercancel = endPress;
   grid.onpointerleave = (e) => {
-    // Don't end on leave if pointer is captured (capture keeps fires going)
     if (activePointerId !== null && grid.hasPointerCapture && grid.hasPointerCapture(activePointerId)) return;
     endPress(e);
   };
@@ -15089,13 +15143,27 @@ async function trySwap(r1, c1, r2, c2) {
   let activated = false;
 
   if (sp1 !== SPECIAL.NONE && sp2 !== SPECIAL.NONE) {
-    // Special + special combo: only allowed if BOTH gems are the same colour,
-    // OR at least one is a RAINBOW/MEGA_RAINBOW (colour-agnostic by nature).
+    // Special + special: check if the swap forms a colour match-3 first.
+    // If yes → treat both specials as normal gems for this move (match resolves normally,
+    // specials just change position). Only attempt a special-combo if NO colour match forms.
     const rainbowTypes = new Set([SPECIAL.RAINBOW, SPECIAL.MEGA_RAINBOW]);
     const sameColor = state.game.grid[r2][c2] === state.game.grid[r1][c1];
     const hasRainbow = rainbowTypes.has(sp1) || rainbowTypes.has(sp2);
-    if (!sameColor && !hasRainbow) {
-      // Different colours, no rainbow — revert and reject
+
+    // Check if the swap produced any colour match involving either swapped cell
+    const allMatchesNow = findAllMatches();
+    const swappedCells = [{ r: r1, c: c1 }, { r: r2, c: c2 }];
+    const colorMatchExists = allMatchesNow.some(grp =>
+      grp.cells.some(cell =>
+        swappedCells.some(sc => sc.r === cell.r && sc.c === cell.c)
+      )
+    );
+
+    if (colorMatchExists) {
+      // Colour match wins — fall through to normal match processing below.
+      // The specials just moved; they don't fire their special effect this turn.
+    } else if (!sameColor && !hasRainbow) {
+      // No colour match AND different colours with no rainbow — reject
       swapInGrid(r1, c1, r2, c2);
       const a = gemAt(r2, c2); const b = gemAt(r1, c1);
       if (a && b) {
@@ -15116,15 +15184,17 @@ async function trySwap(r1, c1, r2, c2) {
       state.game.busy = false;
       scheduleHint();
       return;
+    } else {
+      // Same colour (or rainbow) + no colour match → fire special combo
+      activated = true;
+      state.game.movesLeft--; bumpMoves();
+      document.getElementById('game-moves').textContent = state.game.movesLeft;
+      await activateSpecialCombo(r1, c1, r2, c2, sp1, sp2);
+      await resolveCascade();
+      state.game.busy = false;
+      finishTurn();
+      return;
     }
-    activated = true;
-    state.game.movesLeft--; bumpMoves();
-    document.getElementById('game-moves').textContent = state.game.movesLeft;
-    await activateSpecialCombo(r1, c1, r2, c2, sp1, sp2);
-    await resolveCascade();
-    state.game.busy = false;
-    finishTurn();
-    return;
   }
 
   // Check if rainbow is swapped with regular gem
@@ -15704,13 +15774,18 @@ async function processMatches(groups, swap = null) {
         }
         if (g.grid[t.r][t.c] === -1) continue;
         removeSet.set(tk, { r: t.r, c: t.c, gemType: g.grid[t.r][t.c] });
-        // Chain: if this newly-swept cell was also directly matched (two specials
-        // next to each other in the same match group), allow it to chain-fire.
+        // Chain: allow a swept special to fire if:
+        //   (a) it was directly in the matched group, OR
+        //   (b) it shares the same colour as the gem that triggered the current sweep
+        //       (e.g. two V_LINE reds side by side — the first fires and its sweep
+        //        hits the second red V_LINE, which should also fire).
         if (g.special[t.r][t.c] !== SPECIAL.NONE &&
             ACTIVATABLE_IN_MATCH.has(g.special[t.r][t.c]) &&
-            directMatchKeys.has(tk) &&
             !triggeredKeys.has(tk)) {
-          originalCells.push({ r: t.r, c: t.c });
+          const sameColorAsOrigin = g.grid[t.r][t.c] === g.grid[v.r][v.c];
+          if (directMatchKeys.has(tk) || sameColorAsOrigin) {
+            originalCells.push({ r: t.r, c: t.c });
+          }
         }
       }
     }
@@ -16203,8 +16278,11 @@ async function dropAndFill() {
             // Animate move
             if (occ.fromRow !== targetRow) {
               const cs2 = g.cellSize, _g2 = g.cellGap || 2;
+              occ.el.style.willChange = 'top';
               occ.el.style.left = (c * (cs2 + _g2)) + 'px';
               occ.el.style.top  = (targetRow * (cs2 + _g2)) + 'px';
+              // Clear will-change after animation to free compositor layer
+              setTimeout(() => { if (occ.el) occ.el.style.willChange = ''; }, 380);
             }
           }
         }
