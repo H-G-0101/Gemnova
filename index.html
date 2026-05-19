@@ -9616,18 +9616,98 @@ etc.) ────────────── */
 
 <!-- Daily roulette chest reward modal -->
 <div class="modal-overlay" id="modal-daily-chest">
-  <div class="panel" style="width: min(320px, 92vw); text-align: center;">
-    <div class="panel-banner" style="background: linear-gradient(180deg, var(--c-neon-yellow), var(--c-neon-orange)); color: #2a1500; border-color: #fff; text-shadow: none;">
-      ✦ SUPER BONUS
-    </div>
+  <div class="panel sb-panel">
     <button class="close-x" onclick="closeChestModal();">✕</button>
-    <div style="height:24px"></div>
 
-    <div class="chest-rewards" id="chest-rewards"></div>
+    <!-- Header identical to ranking pattern -->
+    <div class="shop-header" style="padding: 18px 16px 14px;">
+      <div class="shop-header-icon" style="background: linear-gradient(135deg, #b45309, #fbbf24);">✦</div>
+      <div class="shop-header-text">
+        <div class="shop-header-title">SUPER BONUS</div>
+        <div class="shop-header-sub">Your spin rewards are ready</div>
+      </div>
+    </div>
 
-    <button class="btn btn-green" onclick="closeChestModal();" style="margin-top: 14px; width: 100%;">COLLECT</button>
+    <!-- Divider -->
+    <div style="height:1px; background: rgba(255,255,255,0.07); margin: 0 14px;"></div>
+
+    <!-- Rewards grid -->
+    <div class="sb-rewards-wrap">
+      <div class="chest-rewards" id="chest-rewards"></div>
+    </div>
+
+    <!-- Collect button -->
+    <div style="padding: 0 14px 18px;">
+      <button class="sb-collect-btn" onclick="closeChestModal();">
+        <span>COLLECT</span>
+      </button>
+    </div>
   </div>
 </div>
+
+<style>
+/* ── SUPER BONUS MODAL — ranking-style ── */
+.sb-panel {
+  width: min(340px, 92vw);
+  padding: 0;
+  background: linear-gradient(180deg, #1a1340 0%, #0d0828 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+.sb-panel > .close-x {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 28px; height: 28px;
+  font-size: 14px;
+  z-index: 30;
+}
+.sb-rewards-wrap {
+  padding: 18px 14px 14px;
+}
+.sb-rewards-wrap .chest-rewards {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: none;
+  border-radius: 14px;
+  padding: 18px 10px;
+  margin: 0;
+}
+.sb-rewards-wrap .chest-reward-icon {
+  filter: drop-shadow(0 0 8px rgba(255,213,74,0.6));
+}
+.sb-rewards-wrap .chest-reward-label {
+  color: #fff;
+  text-shadow: none;
+  font-size: 15px;
+}
+.sb-rewards-wrap .chest-reward-sub {
+  color: rgba(255,255,255,0.45);
+  font-size: 10px;
+  letter-spacing: 1.2px;
+}
+.sb-collect-btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(34,197,94,0.35);
+  transition: transform 0.12s, box-shadow 0.12s;
+  touch-action: manipulation;
+}
+.sb-collect-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 10px rgba(34,197,94,0.2);
+}
+</style>
 
 <!-- ============================================
      MODAL: MISSIONS (Daily + Weekly + Level-based)
@@ -9749,22 +9829,125 @@ etc.) ────────────── */
 </style>
 
 <!-- ============================================
-     MODAL: VICTORY BURST (first - dramatic)
+     MODAL: RESULT (VICTORY / DEFEAT)
      ============================================ -->
 <div class="modal-overlay" id="modal-result">
-  <div class="panel" style="width: min(290px, 92vw); text-align:center;">
-    <div class="panel-banner" id="result-title">VICTORY!</div>
+  <div class="panel res-panel">
     <button class="close-x" onclick="closeModal('modal-result'); leaveGame();">✕</button>
-    <div style="height:24px;"></div>
-    <div class="result-stars">
-      <span class="s lit" id="rs-1">⭐</span>
-      <span class="s lit" id="rs-2">⭐</span>
-      <span class="s lit" id="rs-3">⭐</span>
+
+    <!-- Header — ranking pattern -->
+    <div class="shop-header" style="padding: 18px 16px 14px;">
+      <div class="shop-header-icon res-header-icon" id="result-icon">💀</div>
+      <div class="shop-header-text">
+        <div class="shop-header-title" id="result-title">DEFEAT</div>
+        <div class="shop-header-sub" id="result-sub">Better luck next time</div>
+      </div>
     </div>
-    <div class="result-rewards" id="result-rewards" style="min-height: 20px;"></div>
-    <button class="btn btn-green" id="result-next-btn">NEXT →</button>
+
+    <!-- Divider -->
+    <div style="height:1px; background: rgba(255,255,255,0.07); margin: 0 14px;"></div>
+
+    <!-- Stars -->
+    <div class="res-stars-row">
+      <span class="res-star dim" id="rs-1">★</span>
+      <span class="res-star dim" id="rs-2">★</span>
+      <span class="res-star dim" id="rs-3">★</span>
+    </div>
+
+    <!-- Rewards (victory only) -->
+    <div class="result-rewards" id="result-rewards"></div>
+
+    <!-- Buttons -->
+    <div class="res-btn-row">
+      <button class="res-btn-home" id="result-home-btn" onclick="closeModal('modal-result'); leaveGame();">
+        🏠 HOME
+      </button>
+      <button class="res-btn-retry" id="result-next-btn">
+        🔄 RETRY
+      </button>
+    </div>
   </div>
 </div>
+
+<style>
+/* ── RESULT MODAL (defeat/victory) — ranking-style ── */
+.res-panel {
+  width: min(320px, 92vw);
+  padding: 0;
+  background: linear-gradient(180deg, #1a1340 0%, #0d0828 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+  overflow: hidden;
+  text-align: center;
+}
+.res-panel > .close-x {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 28px; height: 28px;
+  font-size: 14px;
+  z-index: 30;
+}
+.res-header-icon {
+  background: linear-gradient(135deg, #7f1d1d, #dc2626) !important;
+}
+.res-stars-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px 0 6px;
+}
+.res-star {
+  font-size: 42px;
+  transition: color 0.3s, filter 0.3s;
+  line-height: 1;
+}
+.res-star.lit {
+  color: #fbbf24;
+  filter: drop-shadow(0 0 8px rgba(251,191,36,0.7));
+}
+.res-star.dim {
+  color: rgba(255,255,255,0.12);
+  filter: none;
+}
+.result-rewards {
+  min-height: 12px;
+  padding: 0 14px;
+}
+.res-btn-row {
+  display: flex;
+  gap: 10px;
+  padding: 16px 14px 18px;
+}
+.res-btn-home, .res-btn-retry {
+  flex: 1;
+  padding: 12px 8px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 1px;
+  transition: transform 0.12s, box-shadow 0.12s;
+  touch-action: manipulation;
+}
+.res-btn-home {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.8);
+}
+.res-btn-home:active { transform: scale(0.97); }
+.res-btn-retry {
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(34,197,94,0.35);
+}
+.res-btn-retry:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px rgba(34,197,94,0.2);
+}
+</style>
 
 <!-- ============================================
      MODAL: SCORE PANEL (after victory burst)
@@ -14906,6 +15089,34 @@ async function trySwap(r1, c1, r2, c2) {
   let activated = false;
 
   if (sp1 !== SPECIAL.NONE && sp2 !== SPECIAL.NONE) {
+    // Special + special combo: only allowed if BOTH gems are the same colour,
+    // OR at least one is a RAINBOW/MEGA_RAINBOW (colour-agnostic by nature).
+    const rainbowTypes = new Set([SPECIAL.RAINBOW, SPECIAL.MEGA_RAINBOW]);
+    const sameColor = state.game.grid[r2][c2] === state.game.grid[r1][c1];
+    const hasRainbow = rainbowTypes.has(sp1) || rainbowTypes.has(sp2);
+    if (!sameColor && !hasRainbow) {
+      // Different colours, no rainbow — revert and reject
+      swapInGrid(r1, c1, r2, c2);
+      const a = gemAt(r2, c2); const b = gemAt(r1, c1);
+      if (a && b) {
+        a.style.transition = ''; b.style.transition = '';
+        _gemUnregister(r2, c2); _gemUnregister(r1, c1);
+        _gemRegister(a, r1, c1); _gemRegister(b, r2, c2);
+        a.dataset.r = r1; a.dataset.c = c1;
+        b.dataset.r = r2; b.dataset.c = c2;
+        const cs = state.game.cellSize, gp = state.game.cellGap || 2, step = cs + gp;
+        a.style.left = (c1 * step) + 'px'; a.style.top = (r1 * step) + 'px';
+        b.style.left = (c2 * step) + 'px'; b.style.top = (r2 * step) + 'px';
+        a.classList.add('wobble'); b.classList.add('wobble');
+        setTimeout(() => { a && a.classList.remove('wobble'); b && b.classList.remove('wobble'); }, 420);
+      }
+      audio.play('error');
+      haptic([30, 20, 30]);
+      await wait(380);
+      state.game.busy = false;
+      scheduleHint();
+      return;
+    }
     activated = true;
     state.game.movesLeft--; bumpMoves();
     document.getElementById('game-moves').textContent = state.game.movesLeft;
@@ -17084,7 +17295,10 @@ function declineContinue() {
   closeModal('modal-continue');
   // Show simple defeat result without re-triggering the continue modal
   setTimeout(() => {
-    document.getElementById('result-title').textContent = 'DERROTA';
+    document.getElementById('result-title').textContent = 'DEFEAT';
+    document.getElementById('result-sub').textContent = 'Better luck next time';
+    const icon = document.getElementById('result-icon');
+    if (icon) { icon.textContent = '💀'; icon.style.background = 'linear-gradient(135deg,#7f1d1d,#dc2626)'; }
     ['rs-1','rs-2','rs-3'].forEach((id) => {
       const el = document.getElementById(id);
       if (el) { el.classList.remove('lit'); el.classList.add('dim'); }
@@ -17092,9 +17306,11 @@ function declineContinue() {
     document.getElementById('result-rewards').textContent = '';
     const nextBtn = document.getElementById('result-next-btn');
     if (nextBtn) {
-      nextBtn.textContent = 'Retry';
+      nextBtn.innerHTML = '🔄 RETRY';
       nextBtn.onclick = () => { closeModal('modal-result'); startGame(state.level); };
     }
+    const homeBtn = document.getElementById('result-home-btn');
+    if (homeBtn) homeBtn.onclick = () => { closeModal('modal-result'); leaveGame(); };
     openModal('modal-result');
   }, 300);
 }
